@@ -1,54 +1,23 @@
 # Caso Previsto na Resolução de TCC 1  
 Cláudio Manoel Jansen de Oliveira  
-6 de abril de 2025  
+10 de setembro de 2025  
 
-O NautiGo é um software inovador com foco em mobilidade aquática, que busca implementar  
-um serviço de transporte de passageiros por meio de embarcações. A ideia principal, é  
-oferecer um sistema semelhante ao da Uber, porém adaptado ao ambiente náutico,  
-permitindo que passageiros solicitem viagens de barco através de um aplicativo, tanto em  
-regiões costeiras quanto em áreas ribeirinhas ou com rios navegáveis.  
+O NautiGo é um software inovador com foco em mobilidade aquática, cujo propósito é desenvolver uma plataforma web destinada a oferecer um serviço moderno e acessível de transporte de passageiros por meio de embarcações. A ideia central é permitir que usuários solicitem viagens de barco de maneira simples, rápida e segura, utilizando um navegador ou aplicativo conectado à plataforma. Inspirado em modelos do transporte urbano como a Uber, mas totalmente adaptado ao contexto náutico, o NautiGo busca oferecer uma solução tecnológica adequada às necessidades de regiões onde a navegação é parte fundamental da vida cotidiana.
 
-O serviço surge como uma solução para regiões onde o transporte terrestre é limitado,  
-ineficiente ou inexistente, e onde o transporte por água é uma opção viável e muitas vezes  
-mais rápida. O NautiGo tem como objetivo principal conectar passageiros e condutores de  
-embarcações registrados, garantindo segurança, rastreabilidade e praticidade na contratação  
-do serviço.  
+A plataforma web foi concebida para proporcionar uma experiência prática tanto para passageiros quanto para condutores. Para os passageiros, o sistema permitirá visualizar embarcações próximas, solicitar viagens, acompanhar o deslocamento básico da embarcação e realizar pagamentos digitais. Para os condutores, o NautiGo possibilitará o recebimento de solicitações, a organização das viagens, o acesso ao histórico de corridas e a visualização de avaliações. O objetivo é criar uma solução segura, transparente e acessível para todas as partes envolvidas.
 
-Atualmente, o transporte por barcos em muitas regiões do Brasil e do mundo ainda é informal,  
-o que gera diversos problemas como falta de padronização de preços, ausência de sistemas de  
-segurança, e dificuldade de comunicação entre passageiros e operadores. Com isso, o NautiGo  
-busca preencher essa lacuna com uma plataforma tecnológica que permita a solicitação,  
-rastreamento e pagamento de corridas náuticas em tempo real.  
+O projeto nasce da observação de que, em muitas regiões brasileiras, o transporte terrestre é limitado ou inviável, tornando o deslocamento por água uma alternativa indispensável. Em diversas áreas ribeirinhas e cidades localizadas próximas a grandes rios, a navegação representa a principal forma de mobilidade. No entanto, esse transporte é frequentemente informal, com ausência de padronização de preços, falta de regulamentação, pouca segurança e comunicação deficiente entre passageiros e condutores. Esse cenário impacta diretamente a qualidade do serviço prestado e a rotina das pessoas que dependem dele diariamente.
 
-Dessa forma, o projeto NautiGo tem como base o desenvolvimento de uma aplicação móvel  
-que oferta serviço de transporte por barcos, elevando o padrão de mobilidade aquática e  
-promovendo inclusão digital em regiões muitas vezes esquecidas pelas grandes empresas de  
-tecnologia.  
+O NautiGo surge como uma solução que busca formalizar e modernizar esse setor por meio de uma plataforma tecnológica capaz de conectar passageiros e condutores cadastrados, garantindo maior organização e confiabilidade. A possibilidade de rastrear viagens, registrar condutores, facilitar pagamentos e estabelecer um canal de comunicação eficiente contribui para elevar o padrão do serviço e promover maior segurança. Além disso, a plataforma representa uma oportunidade econômica para os condutores, que poderão ampliar sua base de clientes e contar com uma ferramenta estruturada para gerir suas atividades.
 
-Com isso, existe a necessidade real de uma solução tecnológica que transforme o cenário do  
-transporte náutico no Brasil, em especial na Amazônia, no litoral brasileiro, em cidades com  
-grande presença de rios, como Belém, Manaus, Santarém e em ilhas que não é permitido o  
-transporte de automóveis, onde o deslocamento acontece apenas por barco, como é o caso de  
-Ilha Grande, no Rio de Janeiro.  
+A relevância da solução se torna ainda mais evidente ao analisar regiões como a Amazônia, onde o transporte fluvial é essencial para conectar comunidades geograficamente isoladas. Cidades como Manaus, Belém e Santarém dependem profundamente da navegação para atender às necessidades de deslocamento de seus habitantes. Em localidades turísticas e insulares, como Ilha Grande, no Rio de Janeiro, onde a circulação de veículos terrestres é proibida, a navegação é a única forma de mobilidade. Em todos esses contextos, uma plataforma como o NautiGo pode trazer impactos imediatos e significativos, tornando o deslocamento mais organizado, seguro e acessível.
 
-O desenvolvimento do NautiGo envolve diversos aspectos da Engenharia de Software.  
-Primeiramente, destaca-se o uso de métodos ágeis para permitir entregas contínuas e  
-validações frequentes, o que é crucial dado o grau de inovação do sistema. O feedback  
-constante de usuários será fundamental para garantir que a solução seja realmente útil e  
-adaptada à realidade local.  
+A construção do NautiGo envolve princípios sólidos da Engenharia de Software, como a utilização de métodos ágeis que permitem entregas incrementais e adaptações rápidas com base no _feedback_ dos usuários. Essa abordagem favorece a melhoria contínua do sistema, garantindo que a plataforma evolua conforme as necessidades reais das populações que serão atendidas. A aplicação de práticas ágeis permite responder rapidamente a desafios, ajustar funcionalidades e testar hipóteses de uso com eficiência.
 
-Além disso, a documentação descritiva do projeto será essencial para viabilizar a  
-implementação e evolução da plataforma. Essa documentação abrangerá requisitos funcionais  
-e não funcionais, especificações técnicas, fluxos de uso e integrações planejadas com serviços  
-externos, como APIs de clima e navegação.  
+A documentação do sistema também representa uma etapa fundamental do desenvolvimento. Ela inclui a definição de requisitos funcionais e não funcionais, a modelagem dos dados, a elaboração de fluxos operacionais e a descrição detalhada da arquitetura da aplicação. Parte importante dessa documentação envolve o planejamento do _MVP_ (Minimum Viable Product), que estabelece as funcionalidades essenciais necessárias para garantir o funcionamento inicial da plataforma. Essas funcionalidades incluem autenticação segura, cadastro de usuários, cadastro de condutores, solicitação de viagens, acompanhamento básico, avaliação de viagens e pagamento digital.
 
-Outro ponto relevante da Engenharia de Software presente no projeto é a integração com  
-sistemas externos, como provedores de dados náuticos e meteorológicos, além de gateways de  
-pagamento. Essas integrações deverão ser feitas de forma segura e eficiente, utilizando APIs  
-REST e comunicação assíncrona quando necessário, de modo a garantir a escalabilidade e o  
-desempenho da aplicação.  
+Durante a fase inicial, decidiu-se incluir apenas integrações indispensáveis ao funcionamento básico da plataforma. Por isso, recursos avançados, como informações sobre clima, marés, condições detalhadas de navegação e mapas georreferenciados, não fazem parte do escopo do _MVP_. Essa decisão permite manter o foco naquilo que é mais importante para validar o produto e entregar valor imediato aos usuários.
 
-O NautiGo representa não apenas um projeto de inovação tecnológica, mas também uma  
-oportunidade de impacto social real, ao melhorar a qualidade de vida de populações  
-ribeirinhas, impulsionar o turismo sustentável e formalizar um setor historicamente  
-desassistido.  
+O impacto social previsto com a implantação do NautiGo é um dos pontos mais importantes do projeto. Ao proporcionar uma plataforma organizada e acessível, o sistema contribui para a segurança dos passageiros, fortalece a relação entre condutores e usuários, e incentiva a formalização de um setor que há décadas opera de forma informal. A solução também promove a inclusão digital, especialmente em regiões onde a tecnologia costuma chegar de maneira lenta e fragmentada. Além disso, o NautiGo tem potencial para impulsionar o turismo sustentável, gerar oportunidades de renda para condutores e estimular a economia local.
+
+Em síntese, o NautiGo representa muito mais do que um sistema digital. Trata-se de uma iniciativa com potencial de promover mudanças significativas na mobilidade aquática no Brasil. Ao oferecer uma plataforma web estruturada, acessível e adaptada à realidade de diferentes regiões, o projeto reforça a importância da tecnologia como ferramenta de transformação social. A longo prazo, espera-se que o NautiGo contribua para um sistema de transporte aquático multiplataforma, eficiente, econômico e integrado às necessidades reais de passageiros e condutores, fortalecendo o desenvolvimento de regiões que dependem da navegação como principal meio de deslocamento.
