@@ -1,0 +1,101 @@
+# Arquivos do sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs e editores
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Backend - Java/Spring Boot/Maven
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/*.log
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/.nb-gradle/
+
+# Frontend - Node.js/React
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.next/
+frontend/out/
+frontend/.nuxt/
+frontend/.vuepress/dist/
+frontend/.serverless/
+frontend/.fusebox/
+frontend/.dynamodb/
+frontend/.tern-port
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Arquivos de configuração local
+*.local
+.env.local
+.env.*.local
+
+# Arquivos de documentação temporários
+Documentacao/~$*.docx
+Documentacao/~$*.doc
+
+# Arquivos de backup
+*.backup
+*.old
+
+# Arquivos de sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
