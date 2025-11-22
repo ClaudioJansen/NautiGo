@@ -24,7 +24,10 @@ import PersonIcon from '@mui/icons-material/Person'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PaymentIcon from '@mui/icons-material/Payment'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import StarIcon from '@mui/icons-material/Star'
+import { Rating } from '@mui/material'
 import axios from 'axios'
+import AvaliarViagemDialog from '../components/AvaliarViagemDialog'
 
 interface Viagem {
   id: number
@@ -37,6 +40,7 @@ interface Viagem {
   marinheiroNome: string | null
   marinheiroId: number | null
   nomeBarco: string | null
+  notaMediaMarinheiro: number | null
   numeroPessoas: number
   observacoes: string | null
 }
@@ -48,6 +52,8 @@ const DetalhesViagemPassageiroPage = () => {
   const [viagem, setViagem] = useState<Viagem | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
+  const [dialogAvaliacaoAberto, setDialogAvaliacaoAberto] = useState(false)
+  const [jaAvaliou, setJaAvaliou] = useState(false)
 
   useEffect(() => {
     carregarViagem(true) // Primeira carga com loading
@@ -71,6 +77,35 @@ const DetalhesViagemPassageiroPage = () => {
       if (viagemEncontrada) {
         setViagem(viagemEncontrada)
         setErro('')
+        
+        // Verificar se viagem foi concluída e se já foi avaliada
+        if (viagemEncontrada.status === 'CONCLUIDA' && viagemEncontrada.marinheiroNome && !jaAvaliou) {
+          try {
+            const verificarResponse = await axios.get(
+              `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            )
+            setJaAvaliou(verificarResponse.data.jaAvaliou)
+            
+            // Se não avaliou ainda, mostrar dialog após um pequeno delay
+            if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
+              setTimeout(() => {
+                setDialogAvaliacaoAberto(true)
+              }, 1500)
+            }
+          } catch (error) {
+            // Se der erro, tentar mostrar dialog mesmo assim
+            if (!dialogAvaliacaoAberto) {
+              setTimeout(() => {
+                setDialogAvaliacaoAberto(true)
+              }, 1500)
+            }
+          }
+        }
       } else {
         setErro('Viagem não encontrada')
       }
@@ -283,10 +318,28 @@ const DetalhesViagemPassageiroPage = () => {
                       {viagem.marinheiroNome}
                     </Typography>
                     {viagem.nomeBarco && (
-                      <Typography variant="body2" sx={{ pl: 4, color: 'text.secondary' }}>
+                      <Typography variant="body2" sx={{ pl: 4, color: 'text.secondary', mb: 1 }}>
                         <strong>Barco:</strong> {viagem.nomeBarco}
                       </Typography>
                     )}
+                    <Box sx={{ pl: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Rating
+                        value={viagem.notaMediaMarinheiro !== null && viagem.notaMediaMarinheiro !== undefined ? viagem.notaMediaMarinheiro : 5.0}
+                        readOnly
+                        precision={0.1}
+                        size="small"
+                        icon={<StarIcon sx={{ fontSize: 20 }} />}
+                        emptyIcon={<StarIcon sx={{ fontSize: 20, opacity: 0.3 }} />}
+                        sx={{
+                          '& .MuiRating-iconFilled': {
+                            color: '#ffc107',
+                          },
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        <strong>{(viagem.notaMediaMarinheiro !== null && viagem.notaMediaMarinheiro !== undefined ? viagem.notaMediaMarinheiro : 5.0).toFixed(1)}</strong> / 5.0
+                      </Typography>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -400,6 +453,20 @@ const DetalhesViagemPassageiroPage = () => {
           </Box>
         </Paper>
       </Container>
+
+      {viagem && viagem.status === 'CONCLUIDA' && viagem.marinheiroNome && (
+        <AvaliarViagemDialog
+          open={dialogAvaliacaoAberto && !jaAvaliou}
+          onClose={() => setDialogAvaliacaoAberto(false)}
+          viagemId={viagem.id}
+          avaliadoNome={viagem.marinheiroNome}
+          onAvaliacaoConcluida={() => {
+            setJaAvaliou(true)
+            setDialogAvaliacaoAberto(false)
+            carregarViagem(false)
+          }}
+        />
+      )}
     </Box>
   )
 }

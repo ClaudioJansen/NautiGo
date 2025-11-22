@@ -28,6 +28,8 @@ public class ViagemResponse {
     private Viagem.MetodoPagamento metodoPagamento;
     private Integer numeroPessoas;
     private String nomeBarco;
+    private Double notaMediaMarinheiro;
+    private Double notaMediaPassageiro;
     private BigDecimal valor;
     private LocalDateTime dataCriacao;
 }

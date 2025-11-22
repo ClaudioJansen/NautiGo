@@ -6,6 +6,7 @@ import com.nautigo.entity.Marinheiro;
 import com.nautigo.entity.Passageiro;
 import com.nautigo.entity.Usuario;
 import com.nautigo.entity.Viagem;
+import com.nautigo.repository.AvaliacaoRepository;
 import com.nautigo.repository.MarinheiroRepository;
 import com.nautigo.repository.PassageiroRepository;
 import com.nautigo.repository.UsuarioRepository;
@@ -25,6 +26,7 @@ public class ViagemService {
     private final PassageiroRepository passageiroRepository;
     private final MarinheiroRepository marinheiroRepository;
     private final UsuarioRepository usuarioRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
     
     @Transactional
     public ViagemResponse solicitarViagem(Long passageiroId, SolicitarViagemRequest request) {
@@ -176,6 +178,40 @@ public class ViagemService {
     }
     
     private ViagemResponse toResponse(Viagem viagem) {
+        // Calcular nota média do marinheiro (5.0 se não tiver avaliações)
+        Double notaMediaMarinheiro = null;
+        if (viagem.getMarinheiro() != null) {
+            Long qtdAvaliacoesMarinheiro = avaliacaoRepository.contarAvaliacoes(
+                    viagem.getMarinheiro().getUsuario()
+            );
+            if (qtdAvaliacoesMarinheiro == 0) {
+                notaMediaMarinheiro = 5.0;
+            } else {
+                notaMediaMarinheiro = avaliacaoRepository.calcularMediaAvaliacoes(
+                        viagem.getMarinheiro().getUsuario()
+                );
+                if (notaMediaMarinheiro == null) {
+                    notaMediaMarinheiro = 5.0;
+                }
+            }
+        }
+        
+        // Calcular nota média do passageiro (5.0 se não tiver avaliações)
+        Long qtdAvaliacoesPassageiro = avaliacaoRepository.contarAvaliacoes(
+                viagem.getPassageiro().getUsuario()
+        );
+        Double notaMediaPassageiro;
+        if (qtdAvaliacoesPassageiro == 0) {
+            notaMediaPassageiro = 5.0;
+        } else {
+            notaMediaPassageiro = avaliacaoRepository.calcularMediaAvaliacoes(
+                    viagem.getPassageiro().getUsuario()
+            );
+            if (notaMediaPassageiro == null) {
+                notaMediaPassageiro = 5.0;
+            }
+        }
+        
         return new ViagemResponse(
                 viagem.getId(),
                 viagem.getPassageiro().getId(),
@@ -193,6 +229,8 @@ public class ViagemService {
                 viagem.getMetodoPagamento(),
                 viagem.getNumeroPessoas(),
                 viagem.getMarinheiro() != null ? viagem.getMarinheiro().getNomeEmbarcacao() : null,
+                notaMediaMarinheiro,
+                notaMediaPassageiro,
                 viagem.getValor(),
                 viagem.getDataCriacao()
         );

@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/usuario/**").authenticated()
                 .requestMatchers("/api/passageiro/**").authenticated()
                 .requestMatchers("/api/marinheiro/**").authenticated()
+                .requestMatchers("/api/avaliacoes/**").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

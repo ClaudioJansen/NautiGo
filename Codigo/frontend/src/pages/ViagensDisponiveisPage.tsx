@@ -28,6 +28,8 @@ import { useAuth } from '../contexts/AuthContext'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import StarIcon from '@mui/icons-material/Star'
+import { Rating } from '@mui/material'
 import axios from 'axios'
 
 interface Viagem {
@@ -40,6 +42,7 @@ interface Viagem {
   dataHoraAgendada: string | null
   passageiroNome: string
   numeroPessoas: number
+  notaMediaPassageiro: number | null
   observacoes: string | null
 }
 
@@ -194,7 +197,33 @@ const ViagensDisponiveisPage = () => {
                       },
                     }}
                   >
-                    <TableCell>{viagem.passageiroNome}</TableCell>
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {viagem.passageiroNome}
+                        </Typography>
+                        {viagem.notaMediaPassageiro !== null && viagem.notaMediaPassageiro !== undefined && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                            <Rating
+                              value={viagem.notaMediaPassageiro}
+                              readOnly
+                              precision={0.1}
+                              size="small"
+                              icon={<StarIcon sx={{ fontSize: 14 }} />}
+                              emptyIcon={<StarIcon sx={{ fontSize: 14, opacity: 0.3 }} />}
+                              sx={{
+                                '& .MuiRating-iconFilled': {
+                                  color: '#ffc107',
+                                },
+                              }}
+                            />
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              {viagem.notaMediaPassageiro.toFixed(1)}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </TableCell>
                     <TableCell>{viagem.origem}</TableCell>
                     <TableCell>{viagem.destino}</TableCell>
                     <TableCell>
@@ -256,9 +285,31 @@ const ViagensDisponiveisPage = () => {
               <DialogContentText sx={{ mb: 2 }}>
                 Tem certeza que deseja aceitar esta viagem?
               </DialogContentText>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Passageiro:</strong> {viagemSelecionada.passageiroNome}
-              </Typography>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>Passageiro:</strong> {viagemSelecionada.passageiroNome}
+                </Typography>
+                {viagemSelecionada.notaMediaPassageiro !== null && viagemSelecionada.notaMediaPassageiro !== undefined && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
+                    <Rating
+                      value={viagemSelecionada.notaMediaPassageiro}
+                      readOnly
+                      precision={0.1}
+                      size="small"
+                      icon={<StarIcon sx={{ fontSize: 18 }} />}
+                      emptyIcon={<StarIcon sx={{ fontSize: 18, opacity: 0.3 }} />}
+                      sx={{
+                        '& .MuiRating-iconFilled': {
+                          color: '#ffc107',
+                        },
+                      }}
+                    />
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {viagemSelecionada.notaMediaPassageiro.toFixed(1)} / 5.0
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
               <Typography variant="body2" sx={{ mb: 1 }}>
                 <strong>Origem:</strong> {viagemSelecionada.origem}
               </Typography>

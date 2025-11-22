@@ -28,6 +28,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import axios from 'axios'
+import AvaliarViagemDialog from '../components/AvaliarViagemDialog'
 
 interface Viagem {
   id: number
@@ -50,6 +51,8 @@ const DetalhesViagemMarinheiroPage = () => {
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
+  const [dialogAvaliacaoAberto, setDialogAvaliacaoAberto] = useState(false)
+  const [jaAvaliou, setJaAvaliou] = useState(false)
 
   useEffect(() => {
     carregarViagem(true) // Primeira carga com loading
@@ -73,6 +76,35 @@ const DetalhesViagemMarinheiroPage = () => {
       if (viagemEncontrada) {
         setViagem(viagemEncontrada)
         setErro('')
+        
+        // Verificar se viagem foi concluída e se já foi avaliada
+        if (viagemEncontrada.status === 'CONCLUIDA' && !jaAvaliou) {
+          try {
+            const verificarResponse = await axios.get(
+              `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            )
+            setJaAvaliou(verificarResponse.data.jaAvaliou)
+            
+            // Se não avaliou ainda, mostrar dialog após um pequeno delay
+            if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
+              setTimeout(() => {
+                setDialogAvaliacaoAberto(true)
+              }, 1500)
+            }
+          } catch (error) {
+            // Se der erro, tentar mostrar dialog mesmo assim
+            if (!dialogAvaliacaoAberto) {
+              setTimeout(() => {
+                setDialogAvaliacaoAberto(true)
+              }, 1500)
+            }
+          }
+        }
       } else {
         setErro('Viagem não encontrada')
       }
@@ -461,6 +493,20 @@ const DetalhesViagemMarinheiroPage = () => {
           </Box>
         </Paper>
       </Container>
+
+      {viagem && viagem.status === 'CONCLUIDA' && (
+        <AvaliarViagemDialog
+          open={dialogAvaliacaoAberto && !jaAvaliou}
+          onClose={() => setDialogAvaliacaoAberto(false)}
+          viagemId={viagem.id}
+          avaliadoNome={viagem.passageiroNome}
+          onAvaliacaoConcluida={() => {
+            setJaAvaliou(true)
+            setDialogAvaliacaoAberto(false)
+            carregarViagem(false)
+          }}
+        />
+      )}
     </Box>
   )
 }
