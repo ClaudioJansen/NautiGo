@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Container, Box, TextField, Button, Typography, Paper, Alert, AppBar, Toolbar, IconButton, Divider, Chip } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { Container, Box, TextField, Button, Typography, Paper, Alert, AppBar, Toolbar, IconButton, Divider, Chip, Checkbox, FormControlLabel, Link } from '@mui/material'
+import { useNavigate, Link as RouterLink } from 'react-router-dom'
 import axios from 'axios'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -22,6 +22,7 @@ const CadastroMarinheiroPage = () => {
   })
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const [aceitarTermos, setAceitarTermos] = useState(false)
   const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,11 +304,43 @@ const CadastroMarinheiroPage = () => {
                 />
               </Box>
               
+              <Box sx={{ mt: 3, mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={aceitarTermos}
+                      onChange={(e) => setAceitarTermos(e.target.checked)}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      Eu concordo com os{' '}
+                      <Link 
+                        component={RouterLink} 
+                        to="/termos-uso" 
+                        sx={{ color: 'primary.main', fontWeight: 600 }}
+                      >
+                        Termos de Uso
+                      </Link>
+                      {' '}e{' '}
+                      <Link 
+                        component={RouterLink} 
+                        to="/politica-privacidade" 
+                        sx={{ color: 'primary.main', fontWeight: 600 }}
+                      >
+                        Política de Privacidade
+                      </Link>
+                    </Typography>
+                  }
+                />
+              </Box>
+              
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 size="large"
+                disabled={!aceitarTermos}
                 sx={{
                   mt: 2,
                   mb: 2,
@@ -317,6 +350,10 @@ const CadastroMarinheiroPage = () => {
                   boxShadow: '0 4px 14px 0 rgba(0, 172, 193, 0.39)',
                   '&:hover': {
                     boxShadow: '0 6px 20px 0 rgba(0, 172, 193, 0.5)',
+                  },
+                  '&:disabled': {
+                    background: '#e0e0e0',
+                    color: '#9e9e9e',
                   },
                 }}
               >
