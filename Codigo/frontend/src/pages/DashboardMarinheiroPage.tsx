@@ -3,7 +3,6 @@ import {
   Container,
   Box,
   Typography,
-  Paper,
   Button,
   Grid,
   Card,
@@ -20,51 +19,22 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import HistoryIcon from '@mui/icons-material/History'
-import StarIcon from '@mui/icons-material/Star'
-import { Rating } from '@mui/material'
-import axios from 'axios'
-
-interface MarinheiroInfo {
-  statusAprovacao: string
-}
+import PersonIcon from '@mui/icons-material/Person'
+import Footer from '../components/Footer'
 
 const DashboardMarinheiroPage = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [statusAprovacao, setStatusAprovacao] = useState<string>('')
-  const [loading, setLoading] = useState(true)
-  const [notaMedia, setNotaMedia] = useState<number>(5.0)
-  const [quantidadeAvaliacoes, setQuantidadeAvaliacoes] = useState<number>(0)
+  const [statusAprovacao] = useState<string>('')
 
   useEffect(() => {
     if (!user) {
       navigate('/')
       return
     }
-    carregarNotaMedia()
     // Por enquanto, vamos assumir que se o usuário está logado como marinheiro,
     // ele precisa verificar o status. Em produção, isso viria de uma API
-    setLoading(false)
   }, [user, navigate])
-
-  const carregarNotaMedia = async () => {
-    if (!user?.id) return
-    try {
-      const response = await axios.get(
-        `http://localhost:8080/api/avaliacoes/usuario/${user.id}/media`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      )
-      setNotaMedia(response.data.notaMedia || 5.0)
-      setQuantidadeAvaliacoes(response.data.quantidadeAvaliacoes || 0)
-    } catch (error) {
-      console.error('Erro ao carregar nota média:', error)
-      setNotaMedia(5.0)
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -98,27 +68,30 @@ const DashboardMarinheiroPage = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%)' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%)' }}>
       <AppBar position="static" elevation={0} sx={{ background: 'linear-gradient(135deg, #0d47a1 0%, #0277bd 100%)' }}>
         <Toolbar>
           <DirectionsBoatIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            NautiGo - Marinheiro
+            NautiGo
           </Typography>
           <Typography variant="body2" sx={{ mr: 2 }}>
             Olá, {user?.nome}
           </Typography>
+          <IconButton color="inherit" onClick={() => navigate('/perfil')}>
+            <PersonIcon />
+          </IconButton>
           <IconButton color="inherit" onClick={handleLogout}>
             <ExitToAppIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Box>
             <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
-              Dashboard do Marinheiro
+              Bem-vindo, {user?.nome}!
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Gerencie suas corridas e disponibilidade
@@ -261,44 +234,8 @@ const DashboardMarinheiroPage = () => {
             </Grid>
           </Grid>
         )}
-
-        <Paper sx={{ p: 3, mt: 4, borderRadius: 3 }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Informações da Conta
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <strong>Nome:</strong> {user?.nome}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            <strong>Email:</strong> {user?.email}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Avaliações:
-            </Typography>
-            <Rating
-              value={notaMedia}
-              readOnly
-              precision={0.1}
-              icon={<StarIcon sx={{ fontSize: 24 }} />}
-              emptyIcon={<StarIcon sx={{ fontSize: 24, opacity: 0.3 }} />}
-              sx={{
-                '& .MuiRating-iconFilled': {
-                  color: '#ffc107',
-                },
-              }}
-            />
-            <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main' }}>
-              {notaMedia.toFixed(1)} / 5.0
-            </Typography>
-            {quantidadeAvaliacoes > 0 && (
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                ({quantidadeAvaliacoes} {quantidadeAvaliacoes === 1 ? 'avaliação' : 'avaliações'})
-              </Typography>
-            )}
-          </Box>
-        </Paper>
       </Container>
+      <Footer />
     </Box>
   )
 }

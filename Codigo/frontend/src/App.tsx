@@ -14,6 +14,9 @@ import DetalhesViagemPassageiroPage from './pages/DetalhesViagemPassageiroPage'
 import ViagensDisponiveisPage from './pages/ViagensDisponiveisPage'
 import ListarViagensMarinheiroPage from './pages/ListarViagensMarinheiroPage'
 import DetalhesViagemMarinheiroPage from './pages/DetalhesViagemMarinheiroPage'
+import PerfilPage from './pages/PerfilPage'
+import TermosUsoPage from './pages/TermosUsoPage'
+import PoliticaPrivacidadePage from './pages/PoliticaPrivacidadePage'
 import { AuthProvider } from './contexts/AuthContext'
 
 const theme = createTheme({
@@ -115,6 +118,9 @@ function App() {
             <Route path="/marinheiro/viagens/disponiveis" element={<ViagensDisponiveisPage />} />
             <Route path="/marinheiro/viagens" element={<ListarViagensMarinheiroPage />} />
             <Route path="/marinheiro/viagens/:id" element={<DetalhesViagemMarinheiroPage />} />
+            <Route path="/perfil" element={<PerfilPage />} />
+            <Route path="/termos-uso" element={<TermosUsoPage />} />
+            <Route path="/politica-privacidade" element={<PoliticaPrivacidadePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

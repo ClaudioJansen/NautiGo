@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Footer from '../components/Footer'
 
 const HomePage = () => {
   const navigate = useNavigate()
@@ -95,6 +96,7 @@ const HomePage = () => {
         </Toolbar>
       </AppBar>
 
+      <Box sx={{ flex: 1 }}>
       <Box
         sx={{
           background: 'linear-gradient(135deg, #0d47a1 0%, #0277bd 50%, #00acc1 100%)',
@@ -487,21 +489,8 @@ const HomePage = () => {
         </Container>
       </Box>
 
-      <Box
-        component="footer"
-        sx={{
-          background: 'linear-gradient(135deg, #0d47a1 0%, #0277bd 100%)',
-          color: 'white',
-          py: 4,
-          mt: 8,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Typography variant="body2" align="center" sx={{ opacity: 0.9 }}>
-            © 2025 NautiGo - Plataforma de Transporte Aquático. Todos os direitos reservados.
-          </Typography>
-        </Container>
       </Box>
+      <Footer />
     </Box>
   )
 }
