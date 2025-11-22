@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import axios from 'axios'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -20,10 +21,32 @@ const LoginPage = () => {
     try {
       await login(email, senha)
       const user = JSON.parse(localStorage.getItem('user') || '{}')
+      
+      // Identificar tipo de usuário
       if (user.isAdmin) {
-        navigate('/admin/dashboard')
+        navigate('/admin/dashboard', { replace: true })
       } else {
-        navigate('/')
+        // Fazer requisição para identificar se é passageiro ou marinheiro
+        try {
+          const response = await axios.get('http://localhost:8080/api/usuario/tipo', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          })
+          
+          const tipoUsuario = response.data.tipoUsuario
+          if (tipoUsuario === 'MARINHEIRO') {
+            navigate('/marinheiro/dashboard', { replace: true })
+          } else if (tipoUsuario === 'PASSAGEIRO') {
+            navigate('/passageiro/dashboard', { replace: true })
+          } else {
+            navigate('/', { replace: true })
+          }
+        } catch (error) {
+          console.error('Erro ao verificar tipo de usuário:', error)
+          // Se der erro, tenta redirecionar para home
+          navigate('/', { replace: true })
+        }
       }
     } catch (error: any) {
       setErro(error.response?.data?.message || 'Erro ao fazer login')

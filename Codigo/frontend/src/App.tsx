@@ -6,6 +6,14 @@ import LoginPage from './pages/LoginPage'
 import CadastroPassageiroPage from './pages/CadastroPassageiroPage'
 import CadastroMarinheiroPage from './pages/CadastroMarinheiroPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import DashboardPassageiroPage from './pages/DashboardPassageiroPage'
+import DashboardMarinheiroPage from './pages/DashboardMarinheiroPage'
+import SolicitarViagemPage from './pages/SolicitarViagemPage'
+import ListarViagensPassageiroPage from './pages/ListarViagensPassageiroPage'
+import DetalhesViagemPassageiroPage from './pages/DetalhesViagemPassageiroPage'
+import ViagensDisponiveisPage from './pages/ViagensDisponiveisPage'
+import ListarViagensMarinheiroPage from './pages/ListarViagensMarinheiroPage'
+import DetalhesViagemMarinheiroPage from './pages/DetalhesViagemMarinheiroPage'
 import { AuthProvider } from './contexts/AuthContext'
 
 const theme = createTheme({
@@ -99,6 +107,14 @@ function App() {
             <Route path="/passageiro/cadastro" element={<CadastroPassageiroPage />} />
             <Route path="/marinheiro/cadastro" element={<CadastroMarinheiroPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/passageiro/dashboard" element={<DashboardPassageiroPage />} />
+            <Route path="/passageiro/viagens/solicitar" element={<SolicitarViagemPage />} />
+            <Route path="/passageiro/viagens" element={<ListarViagensPassageiroPage />} />
+            <Route path="/passageiro/viagens/:id" element={<DetalhesViagemPassageiroPage />} />
+            <Route path="/marinheiro/dashboard" element={<DashboardMarinheiroPage />} />
+            <Route path="/marinheiro/viagens/disponiveis" element={<ViagensDisponiveisPage />} />
+            <Route path="/marinheiro/viagens" element={<ListarViagensMarinheiroPage />} />
+            <Route path="/marinheiro/viagens/:id" element={<DetalhesViagemMarinheiroPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

@@ -8,10 +8,54 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const HomePage = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useAuth()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const verificarERedirecionar = async () => {
+      if (isAuthenticated && user) {
+        // Se o usuário está logado, identificar tipo e redirecionar
+        if (user.isAdmin) {
+          navigate('/admin/dashboard', { replace: true })
+          return
+        }
+        
+        try {
+          // Verificar se é passageiro ou marinheiro
+          const response = await axios.get('http://localhost:8080/api/usuario/tipo', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          })
+          
+          const tipoUsuario = response.data.tipoUsuario
+          if (tipoUsuario === 'MARINHEIRO') {
+            navigate('/marinheiro/dashboard', { replace: true })
+          } else if (tipoUsuario === 'PASSAGEIRO') {
+            navigate('/passageiro/dashboard', { replace: true })
+          } else {
+            setLoading(false)
+          }
+        } catch (error) {
+          console.error('Erro ao verificar tipo de usuário:', error)
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+    
+    verificarERedirecionar()
+  }, [isAuthenticated, user, navigate])
+
+  if (loading && isAuthenticated) {
+    return null // Ou um loading spinner
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
