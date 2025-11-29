@@ -94,7 +94,7 @@ const DashboardMarinheiroPage = () => {
               Bem-vindo, {user?.nome}!
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Gerencie suas corridas e disponibilidade
+              Gerencie suas viagens e disponibilidade
             </Typography>
           </Box>
           {statusAprovacao && (
@@ -152,7 +152,7 @@ const DashboardMarinheiroPage = () => {
                     <VisibilityIcon sx={{ fontSize: 40, color: 'white' }} />
                   </Box>
                   <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                    Corridas Disponíveis
+                    Viagens Disponíveis
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                     Veja e aceite solicitações de viagens
@@ -169,7 +169,7 @@ const DashboardMarinheiroPage = () => {
                       py: 1.5,
                     }}
                   >
-                    Ver Corridas
+                    Ver Viagens
                   </Button>
                 </CardContent>
               </Card>
@@ -206,10 +206,10 @@ const DashboardMarinheiroPage = () => {
                     <HistoryIcon sx={{ fontSize: 40, color: 'white' }} />
                   </Box>
                   <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                    Minhas Corridas
+                    Minhas Viagens
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Visualize o histórico de suas corridas
+                    Visualize o histórico de suas viagens
                   </Typography>
                   <Button
                     variant="outlined"

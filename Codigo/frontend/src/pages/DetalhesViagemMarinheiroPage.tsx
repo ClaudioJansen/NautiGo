@@ -70,13 +70,14 @@ const DetalhesViagemMarinheiroPage = () => {
       if (isInitialLoad) {
         setLoading(true)
       }
-      const response = await axios.get('http://localhost:8080/api/marinheiro/viagens', {
+      // Buscar com tamanho grande para garantir que encontre a viagem específica
+      const response = await axios.get('http://localhost:8080/api/marinheiro/viagens?page=0&size=100', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
       
-      const viagemEncontrada = response.data.find((v: Viagem) => v.id === Number(id))
+      const viagemEncontrada = response.data.content.find((v: Viagem) => v.id === Number(id))
       if (viagemEncontrada) {
         setViagem(viagemEncontrada)
         setErro('')
@@ -268,7 +269,7 @@ const DetalhesViagemMarinheiroPage = () => {
           </IconButton>
           <DirectionsBoatIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            Detalhes da Corrida
+            Detalhes da Viagem
           </Typography>
         </Toolbar>
       </AppBar>

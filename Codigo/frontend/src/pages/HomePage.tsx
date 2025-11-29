@@ -271,7 +271,7 @@ const HomePage = () => {
                   Sou Marinheiro
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 4, flex: 1, fontSize: '1.1rem' }}>
-                  Ofereça seus serviços de transporte aquático e encontre passageiros. Gerencie suas corridas e
+                  Ofereça seus serviços de transporte aquático e encontre passageiros. Gerencie suas viagens e
                   aumente sua renda de forma organizada.
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

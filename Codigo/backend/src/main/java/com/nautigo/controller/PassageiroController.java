@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -52,7 +51,10 @@ public class PassageiroController {
     }
     
     @GetMapping("/viagens")
-    public ResponseEntity<List<ViagemResponse>> listarMinhasViagens(HttpServletRequest request) {
+    public ResponseEntity<?> listarMinhasViagens(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            HttpServletRequest request) {
         Long usuarioId = getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -60,8 +62,8 @@ public class PassageiroController {
         var passageiro = passageiroRepository.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuário não é um passageiro"));
         
-        List<ViagemResponse> viagens = viagemService.listarViagensDoPassageiro(passageiro.getId());
-        return ResponseEntity.ok(viagens);
+        var response = viagemService.listarViagensDoPassageiroPaginado(passageiro.getId(), page, size);
+        return ResponseEntity.ok(response);
     }
     
     @PostMapping("/viagens/{id}/cancelar")

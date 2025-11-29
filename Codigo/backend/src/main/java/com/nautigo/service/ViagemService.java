@@ -1,5 +1,6 @@
 package com.nautigo.service;
 
+import com.nautigo.dto.PaginatedResponse;
 import com.nautigo.dto.SolicitarViagemRequest;
 import com.nautigo.dto.ViagemResponse;
 import com.nautigo.entity.Marinheiro;
@@ -14,6 +15,9 @@ import com.nautigo.repository.UsuarioRepository;
 import com.nautigo.repository.ViagemRecusadaRepository;
 import com.nautigo.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,10 +75,38 @@ public class ViagemService {
         Passageiro passageiro = passageiroRepository.findById(passageiroId)
                 .orElseThrow(() -> new RuntimeException("Passageiro não encontrado"));
         
-        return viagemRepository.findByPassageiroOrderByDataCriacaoDesc(passageiro)
+        // Filtrar viagens canceladas - não devem aparecer no histórico
+        return viagemRepository.findByPassageiroAndStatusNotOrderByDataCriacaoDesc(passageiro, Viagem.StatusViagem.CANCELADA)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+    
+    public PaginatedResponse<ViagemResponse> listarViagensDoPassageiroPaginado(Long passageiroId, int page, int size) {
+        Passageiro passageiro = passageiroRepository.findById(passageiroId)
+                .orElseThrow(() -> new RuntimeException("Passageiro não encontrado"));
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Viagem> viagensPage = viagemRepository.findByPassageiroAndStatusNotOrderByDataCriacaoDesc(
+                passageiro, 
+                Viagem.StatusViagem.CANCELADA, 
+                pageable
+        );
+        
+        List<ViagemResponse> content = viagensPage.getContent()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+        
+        return new PaginatedResponse<>(
+                content,
+                viagensPage.getNumber(),
+                viagensPage.getSize(),
+                viagensPage.getTotalElements(),
+                viagensPage.getTotalPages(),
+                viagensPage.isFirst(),
+                viagensPage.isLast()
+        );
     }
     
     public List<ViagemResponse> listarViagensDisponiveis(Long marinheiroId) {
@@ -100,10 +132,38 @@ public class ViagemService {
         Marinheiro marinheiro = marinheiroRepository.findById(marinheiroId)
                 .orElseThrow(() -> new RuntimeException("Marinheiro não encontrado"));
         
-        return viagemRepository.findByMarinheiroOrderByDataCriacaoDesc(marinheiro)
+        // Filtrar viagens canceladas - não devem aparecer no histórico
+        return viagemRepository.findByMarinheiroAndStatusNotOrderByDataCriacaoDesc(marinheiro, Viagem.StatusViagem.CANCELADA)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+    
+    public PaginatedResponse<ViagemResponse> listarViagensDoMarinheiroPaginado(Long marinheiroId, int page, int size) {
+        Marinheiro marinheiro = marinheiroRepository.findById(marinheiroId)
+                .orElseThrow(() -> new RuntimeException("Marinheiro não encontrado"));
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Viagem> viagensPage = viagemRepository.findByMarinheiroAndStatusNotOrderByDataCriacaoDesc(
+                marinheiro, 
+                Viagem.StatusViagem.CANCELADA, 
+                pageable
+        );
+        
+        List<ViagemResponse> content = viagensPage.getContent()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+        
+        return new PaginatedResponse<>(
+                content,
+                viagensPage.getNumber(),
+                viagensPage.getSize(),
+                viagensPage.getTotalElements(),
+                viagensPage.getTotalPages(),
+                viagensPage.isFirst(),
+                viagensPage.isLast()
+        );
     }
     
     @Transactional

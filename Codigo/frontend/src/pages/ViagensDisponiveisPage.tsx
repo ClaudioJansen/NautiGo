@@ -262,7 +262,7 @@ const ViagensDisponiveisPage = () => {
           </IconButton>
           <DirectionsBoatIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            Corridas Disponíveis
+            Viagens Disponíveis
           </Typography>
         </Toolbar>
       </AppBar>
@@ -272,7 +272,7 @@ const ViagensDisponiveisPage = () => {
           Viagens Disponíveis
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Aceite corridas que correspondem às suas habilidades
+          Aceite viagens que correspondem às suas habilidades
         </Typography>
 
         {sucesso && (
@@ -311,10 +311,10 @@ const ViagensDisponiveisPage = () => {
           <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 3 }}>
             <DirectionsBoatIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
             <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
-              Nenhuma corrida disponível
+              Nenhuma viagem disponível
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Novas corridas aparecerão aqui quando passageiros solicitarem viagens
+              Novas viagens aparecerão aqui quando passageiros solicitarem viagens
             </Typography>
           </Paper>
         ) : (

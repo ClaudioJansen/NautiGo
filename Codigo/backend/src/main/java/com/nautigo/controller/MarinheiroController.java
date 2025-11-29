@@ -47,7 +47,10 @@ public class MarinheiroController {
     }
     
     @GetMapping("/viagens")
-    public ResponseEntity<List<ViagemResponse>> listarMinhasViagens(HttpServletRequest request) {
+    public ResponseEntity<?> listarMinhasViagens(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            HttpServletRequest request) {
         Long usuarioId = getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -55,8 +58,8 @@ public class MarinheiroController {
         Marinheiro marinheiro = marinheiroRepository.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuário não é um marinheiro"));
         
-        List<ViagemResponse> viagens = viagemService.listarViagensDoMarinheiro(marinheiro.getId());
-        return ResponseEntity.ok(viagens);
+        var response = viagemService.listarViagensDoMarinheiroPaginado(marinheiro.getId(), page, size);
+        return ResponseEntity.ok(response);
     }
     
     @PostMapping("/viagens/{id}/aceitar")

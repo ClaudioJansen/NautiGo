@@ -75,13 +75,14 @@ const DetalhesViagemPassageiroPage = () => {
       if (isInitialLoad) {
         setLoading(true)
       }
-      const response = await axios.get('http://localhost:8080/api/passageiro/viagens', {
+      // Buscar com tamanho grande para garantir que encontre a viagem específica
+      const response = await axios.get('http://localhost:8080/api/passageiro/viagens?page=0&size=100', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
       
-      const viagemEncontrada = response.data.find((v: Viagem) => v.id === Number(id))
+      const viagemEncontrada = response.data.content.find((v: Viagem) => v.id === Number(id))
       if (viagemEncontrada) {
         setViagem(viagemEncontrada)
         setErro('')

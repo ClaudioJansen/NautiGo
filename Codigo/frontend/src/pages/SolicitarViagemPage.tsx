@@ -46,7 +46,8 @@ const SolicitarViagemPage = () => {
 
   const verificarViagemAtiva = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/passageiro/viagens', {
+      // Buscar com tamanho grande para garantir que encontre viagens ativas
+      const response = await axios.get('http://localhost:8080/api/passageiro/viagens?page=0&size=100', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -55,7 +56,7 @@ const SolicitarViagemPage = () => {
       // Verificar se há viagem ativa
       // Viagens agendadas não devem bloquear o passageiro de solicitar novas viagens
       // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
-      const viagemAtiva = response.data.find((v: any) => {
+      const viagemAtiva = response.data.content.find((v: any) => {
         // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
         if (v.status === 'EM_ANDAMENTO') {
           return true
