@@ -33,8 +33,15 @@ public class MarinheiroController {
     }
     
     @GetMapping("/viagens/disponiveis")
-    public ResponseEntity<List<ViagemResponse>> listarViagensDisponiveis() {
-        List<ViagemResponse> viagens = viagemService.listarViagensDisponiveis();
+    public ResponseEntity<List<ViagemResponse>> listarViagensDisponiveis(HttpServletRequest request) {
+        Long usuarioId = getUserIdFromRequest(request);
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Marinheiro marinheiro = marinheiroRepository.findByUsuario(usuario)
+                .orElseThrow(() -> new RuntimeException("Usuário não é um marinheiro"));
+
+        List<ViagemResponse> viagens = viagemService.listarViagensDisponiveis(marinheiro.getId());
         return ResponseEntity.ok(viagens);
     }
     
@@ -67,6 +74,24 @@ public class MarinheiroController {
             }
             
             ViagemResponse viagem = viagemService.aceitarViagem(id, marinheiro.getId());
+            return ResponseEntity.ok(viagem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/viagens/{id}/recusar")
+    public ResponseEntity<?> recusarViagem(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            Long usuarioId = getUserIdFromRequest(request);
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            Marinheiro marinheiro = marinheiroRepository.findByUsuario(usuario)
+                    .orElseThrow(() -> new RuntimeException("Usuário não é um marinheiro"));
+
+            ViagemResponse viagem = viagemService.recusarViagem(id, marinheiro.getId());
             return ResponseEntity.ok(viagem);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

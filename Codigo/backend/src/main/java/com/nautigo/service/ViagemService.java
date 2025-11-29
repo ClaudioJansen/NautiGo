@@ -6,10 +6,12 @@ import com.nautigo.entity.Marinheiro;
 import com.nautigo.entity.Passageiro;
 import com.nautigo.entity.Usuario;
 import com.nautigo.entity.Viagem;
+import com.nautigo.entity.ViagemRecusada;
 import com.nautigo.repository.AvaliacaoRepository;
 import com.nautigo.repository.MarinheiroRepository;
 import com.nautigo.repository.PassageiroRepository;
 import com.nautigo.repository.UsuarioRepository;
+import com.nautigo.repository.ViagemRecusadaRepository;
 import com.nautigo.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class ViagemService {
     private final MarinheiroRepository marinheiroRepository;
     private final UsuarioRepository usuarioRepository;
     private final AvaliacaoRepository avaliacaoRepository;
+    private final ViagemRecusadaRepository viagemRecusadaRepository;
     
     @Transactional
     public ViagemResponse solicitarViagem(Long passageiroId, SolicitarViagemRequest request) {
@@ -58,9 +61,21 @@ public class ViagemService {
                 .collect(Collectors.toList());
     }
     
-    public List<ViagemResponse> listarViagensDisponiveis() {
-        return viagemRepository.findByStatusAndMarinheiroIsNullOrderByDataCriacaoDesc(Viagem.StatusViagem.PENDENTE)
-                .stream()
+    public List<ViagemResponse> listarViagensDisponiveis(Long marinheiroId) {
+        // Buscar viagens pendentes que ainda não foram recusadas por este marinheiro
+        List<Long> recusadasIds = viagemRecusadaRepository.findViagemIdsByMarinheiroId(marinheiroId);
+
+        List<Viagem> viagens;
+        if (recusadasIds == null || recusadasIds.isEmpty()) {
+            viagens = viagemRepository.findByStatusAndMarinheiroIsNullOrderByDataCriacaoDesc(Viagem.StatusViagem.PENDENTE);
+        } else {
+            viagens = viagemRepository.findByStatusAndMarinheiroIsNullAndIdNotInOrderByDataCriacaoDesc(
+                    Viagem.StatusViagem.PENDENTE,
+                    recusadasIds
+            );
+        }
+
+        return viagens.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -100,6 +115,38 @@ public class ViagemService {
         
         viagem = viagemRepository.save(viagem);
         
+        return toResponse(viagem);
+    }
+
+    @Transactional
+    public ViagemResponse recusarViagem(Long viagemId, Long marinheiroId) {
+        Viagem viagem = viagemRepository.findById(viagemId)
+                .orElseThrow(() -> new RuntimeException("Viagem não encontrada"));
+
+        if (viagem.getStatus() != Viagem.StatusViagem.PENDENTE) {
+            throw new RuntimeException("Apenas viagens pendentes podem ser recusadas");
+        }
+
+        if (viagem.getMarinheiro() != null) {
+            throw new RuntimeException("Viagem já foi aceita por um marinheiro");
+        }
+
+        Marinheiro marinheiro = marinheiroRepository.findById(marinheiroId)
+                .orElseThrow(() -> new RuntimeException("Marinheiro não encontrado"));
+
+        if (marinheiro.getStatusAprovacao() != Marinheiro.StatusAprovacao.APROVADO) {
+            throw new RuntimeException("Marinheiro não está aprovado para recusar viagens");
+        }
+
+        // Se já houver registro de recusa, não cria outro
+        if (!viagemRecusadaRepository.existsByViagem_IdAndMarinheiro_Id(viagemId, marinheiroId)) {
+            ViagemRecusada recusa = new ViagemRecusada();
+            recusa.setViagem(viagem);
+            recusa.setMarinheiro(marinheiro);
+            viagemRecusadaRepository.save(recusa);
+        }
+
+        // A viagem continua pendente para outros marinheiros, só deixa de aparecer para este
         return toResponse(viagem);
     }
     

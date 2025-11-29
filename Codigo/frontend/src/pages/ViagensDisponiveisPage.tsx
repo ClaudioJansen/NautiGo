@@ -116,6 +116,27 @@ const ViagensDisponiveisPage = () => {
     }
   }
 
+  const recusarViagem = async (viagem: Viagem) => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/marinheiro/viagens/${viagem.id}/recusar`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      )
+      setSucesso('Viagem recusada com sucesso!')
+      fecharDialog()
+      // Recarregar lista para remover a viagem recusada
+      carregarViagens()
+    } catch (error: any) {
+      setErro(error.response?.data?.message || 'Erro ao recusar viagem')
+      fecharDialog()
+    }
+  }
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('pt-BR')
@@ -184,7 +205,7 @@ const ViagensDisponiveisPage = () => {
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Pessoas</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Pagamento</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Data/Hora</TableCell>
-                  <TableCell align="right" sx={{ color: 'white', fontWeight: 600 }}>Ação</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600 }}>Ação</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -241,23 +262,34 @@ const ViagensDisponiveisPage = () => {
                       />
                     </TableCell>
                     <TableCell>{formatDate(viagem.dataHoraAgendada || viagem.dataHoraSolicitada)}</TableCell>
-                    <TableCell align="right">
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<CheckCircleIcon />}
-                        onClick={() => abrirDialog(viagem)}
-                        sx={{
-                          background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
-                          textTransform: 'none',
-                          boxShadow: '0 2px 8px rgba(46, 125, 50, 0.3)',
-                          '&:hover': {
-                            boxShadow: '0 4px 12px rgba(46, 125, 50, 0.4)',
-                          },
-                        }}
-                      >
-                        Aceitar
-                      </Button>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={<CheckCircleIcon />}
+                          onClick={() => abrirDialog(viagem)}
+                          sx={{
+                            background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                            textTransform: 'none',
+                            boxShadow: '0 2px 8px rgba(46, 125, 50, 0.3)',
+                            '&:hover': {
+                              boxShadow: '0 4px 12px rgba(46, 125, 50, 0.4)',
+                            },
+                          }}
+                        >
+                          Aceitar
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => recusarViagem(viagem)}
+                          sx={{ textTransform: 'none' }}
+                        >
+                          Recusar
+                        </Button>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -330,20 +362,32 @@ const ViagensDisponiveisPage = () => {
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 2 }}>
+        <DialogActions sx={{ p: 3, pt: 2, display: 'flex', justifyContent: 'space-between' }}>
           <Button onClick={fecharDialog} sx={{ textTransform: 'none' }}>
-            Cancelar
+            Fechar
           </Button>
-          <Button
-            onClick={aceitarViagem}
-            variant="contained"
-            sx={{
-              textTransform: 'none',
-              background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
-            }}
-          >
-            Confirmar
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {viagemSelecionada && (
+              <Button
+                onClick={() => recusarViagem(viagemSelecionada)}
+                color="error"
+                variant="outlined"
+                sx={{ textTransform: 'none' }}
+              >
+                Recusar
+              </Button>
+            )}
+            <Button
+              onClick={aceitarViagem}
+              variant="contained"
+              sx={{
+                textTransform: 'none',
+                background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+              }}
+            >
+              Aceitar
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
     </Box>

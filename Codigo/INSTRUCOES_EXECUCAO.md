@@ -3,7 +3,7 @@
 ## Pré-requisitos
 
 1. **PostgreSQL** instalado e rodando
-2. **Java 21+** instalado
+2. **Java 17+** instalado
 3. **Maven 3.6+** instalado
 4. **Node.js 18+** e npm instalados
 
