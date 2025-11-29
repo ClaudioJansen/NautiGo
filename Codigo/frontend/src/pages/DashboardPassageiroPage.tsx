@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Container,
   Box,
@@ -9,7 +9,8 @@ import {
   CardContent,
   AppBar,
   Toolbar,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -18,17 +19,58 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import PersonIcon from '@mui/icons-material/Person'
 import AddIcon from '@mui/icons-material/Add'
 import HistoryIcon from '@mui/icons-material/History'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import Footer from '../components/Footer'
+import axios from 'axios'
+
+interface Viagem {
+  id: number
+  status: string
+  dataHoraAgendada: string | null
+}
 
 const DashboardPassageiroPage = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [viagemAtiva, setViagemAtiva] = useState<Viagem | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) {
       navigate('/')
+      return
     }
+    carregarViagemAtiva()
   }, [user, navigate])
+
+  const carregarViagemAtiva = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/passageiro/viagens', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      
+      // Verificar se há viagem ativa
+      // Viagens agendadas não devem bloquear o passageiro de solicitar novas viagens
+      // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
+      const viagem = response.data.find((v: Viagem) => {
+        // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
+        if (v.status === 'EM_ANDAMENTO') {
+          return true
+        }
+        // Para outros status ativos, só considera se não for agendada
+        const statusAtivo = ['PENDENTE', 'AGUARDANDO_APROVACAO_PASSAGEIRO', 'ACEITA'].includes(v.status)
+        return statusAtivo && !v.dataHoraAgendada
+      })
+      
+      setViagemAtiva(viagem || null)
+    } catch (error) {
+      console.error('Erro ao carregar viagens:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -63,60 +105,83 @@ const DashboardPassageiroPage = () => {
           Gerencie suas viagens e solicite transporte aquático
         </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card
-              sx={{
-                height: '100%',
-                borderRadius: 3,
-                transition: 'all 0.3s ease-in-out',
-                border: '2px solid transparent',
-                background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #0d47a1, #00acc1) border-box',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 24px rgba(13, 71, 161, 0.25)',
-                },
-              }}
-            >
-              <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                <Box
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mx: 'auto',
-                    mb: 3,
-                    boxShadow: '0 8px 24px rgba(13, 71, 161, 0.3)',
-                  }}
-                >
-                  <AddIcon sx={{ fontSize: 40, color: 'white' }} />
-                </Box>
-                <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                  Solicitar Viagem
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Solicite uma viagem de barco para seu destino
-                </Typography>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  onClick={() => navigate('/passageiro/viagens/solicitar')}
-                  sx={{
-                    background: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
-                    textTransform: 'none',
-                    py: 1.5,
-                  }}
-                >
-                  Nova Solicitação
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  height: '100%',
+                  borderRadius: 3,
+                  transition: 'all 0.3s ease-in-out',
+                  border: '2px solid transparent',
+                  background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #0d47a1, #00acc1) border-box',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 24px rgba(13, 71, 161, 0.25)',
+                  },
+                }}
+              >
+                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                  <Box
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      background: viagemAtiva 
+                        ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
+                        : 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 3,
+                      boxShadow: viagemAtiva
+                        ? '0 8px 24px rgba(46, 125, 50, 0.3)'
+                        : '0 8px 24px rgba(13, 71, 161, 0.3)',
+                    }}
+                  >
+                    {viagemAtiva ? (
+                      <VisibilityIcon sx={{ fontSize: 40, color: 'white' }} />
+                    ) : (
+                      <AddIcon sx={{ fontSize: 40, color: 'white' }} />
+                    )}
+                  </Box>
+                  <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                    {viagemAtiva ? 'Acompanhar Viagem' : 'Solicitar Viagem'}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    {viagemAtiva 
+                      ? 'Acompanhe o status da sua viagem ativa'
+                      : 'Solicite uma viagem de barco para seu destino'}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    onClick={() => {
+                      if (viagemAtiva) {
+                        navigate(`/passageiro/viagens/${viagemAtiva.id}`)
+                      } else {
+                        navigate('/passageiro/viagens/solicitar')
+                      }
+                    }}
+                    sx={{
+                      background: viagemAtiva
+                        ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)'
+                        : 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
+                      textTransform: 'none',
+                      py: 1.5,
+                    }}
+                  >
+                    {viagemAtiva ? 'Acompanhar Viagem' : 'Nova Solicitação'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
 
           <Grid item xs={12} md={6}>
             <Card
@@ -175,7 +240,8 @@ const DashboardPassageiroPage = () => {
               </CardContent>
             </Card>
           </Grid>
-        </Grid>
+          </Grid>
+        )}
       </Container>
       <Footer />
     </Box>

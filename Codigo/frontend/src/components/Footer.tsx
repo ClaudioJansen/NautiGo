@@ -69,7 +69,7 @@ const Footer = () => {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Email: caujansen@gmail.com
+                Email: suporte@nautigo.com
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
                 Horário: Segunda a Sexta, 9h às 18h

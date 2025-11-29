@@ -163,14 +163,14 @@ const DetalhesViagemPassageiroPage = () => {
     }
   }
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string, dataHoraAgendada: string | null = null) => {
     switch (status) {
       case 'PENDENTE':
         return 'Aguardando aceitação'
       case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
         return 'Aguardando sua aprovação'
       case 'ACEITA':
-        return 'Marinheiro a caminho'
+        return dataHoraAgendada ? 'Agendada' : 'Marinheiro a caminho'
       case 'EM_ANDAMENTO':
         return 'Em andamento'
       case 'CONCLUIDA':
@@ -244,7 +244,7 @@ const DetalhesViagemPassageiroPage = () => {
               Viagem com {viagem.marinheiroNome || 'marinheiro'}
             </Typography>
             <Chip
-              label={getStatusLabel(viagem.status)}
+              label={getStatusLabel(viagem.status, viagem.dataHoraAgendada)}
               color={getStatusColor(viagem.status) as any}
               sx={{ fontWeight: 600, fontSize: '0.9rem', py: 2.5 }}
             />
@@ -264,10 +264,20 @@ const DetalhesViagemPassageiroPage = () => {
           {viagem.status === 'ACEITA' && (
             <Alert severity="info" sx={{ mb: 4, borderRadius: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                Marinheiro a caminho!
+                {viagem.dataHoraAgendada ? 'Viagem agendada confirmada!' : 'Marinheiro a caminho!'}
               </Typography>
               <Typography variant="body2">
-                <strong>{viagem.marinheiroNome}</strong> aceitou sua solicitação e está se dirigindo ao ponto de partida. Aguarde na origem indicada.
+                {viagem.dataHoraAgendada ? (
+                  <>
+                    <strong>{viagem.marinheiroNome}</strong> aceitou sua solicitação. A viagem está agendada para{' '}
+                    <strong>{new Date(viagem.dataHoraAgendada).toLocaleString('pt-BR')}</strong>. 
+                    O marinheiro estará disponível no horário agendado.
+                  </>
+                ) : (
+                  <>
+                    <strong>{viagem.marinheiroNome}</strong> aceitou sua solicitação e está se dirigindo ao ponto de partida. Aguarde na origem indicada.
+                  </>
+                )}
               </Typography>
             </Alert>
           )}

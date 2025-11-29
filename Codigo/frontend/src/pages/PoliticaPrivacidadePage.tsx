@@ -164,7 +164,7 @@ const PoliticaPrivacidadePage = () => {
               <li>Exportar seus dados em formato legível</li>
             </Typography>
             <Typography variant="body1" paragraph sx={{ textAlign: 'justify' }}>
-              Para exercer esses direitos, entre em contato conosco através do email: caujansen@gmail.com
+              Para exercer esses direitos, entre em contato conosco através do email: suporte@nautigo.com
             </Typography>
           </Box>
 
@@ -207,7 +207,7 @@ const PoliticaPrivacidadePage = () => {
               dados pessoais, entre em contato conosco:
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Email:</strong> caujansen@gmail.com
+              <strong>Email:</strong> suporte@nautigo.com
             </Typography>
           </Box>
         </Paper>

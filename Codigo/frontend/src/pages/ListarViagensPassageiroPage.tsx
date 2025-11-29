@@ -90,14 +90,14 @@ const ListarViagensPassageiroPage = () => {
     }
   }
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string, dataHoraAgendada: string | null = null) => {
     switch (status) {
       case 'PENDENTE':
         return 'Pendente'
       case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
         return 'Aguardando sua aprovação'
       case 'ACEITA':
-        return 'Aceita'
+        return dataHoraAgendada ? 'Agendado' : 'Aceita'
       case 'EM_ANDAMENTO':
         return 'Em Andamento'
       case 'CONCLUIDA':
@@ -113,6 +113,19 @@ const ListarViagensPassageiroPage = () => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('pt-BR')
   }
+
+  // Verificar se há viagem ativa
+  // Viagens agendadas não devem bloquear o passageiro de solicitar novas viagens
+  // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
+  const temViagemAtiva = viagens.some(v => {
+    // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
+    if (v.status === 'EM_ANDAMENTO') {
+      return true
+    }
+    // Para outros status ativos, só considera se não for agendada
+    const statusAtivo = ['PENDENTE', 'AGUARDANDO_APROVACAO_PASSAGEIRO', 'ACEITA'].includes(v.status)
+    return statusAtivo && !v.dataHoraAgendada
+  })
 
   if (loading) {
     return (
@@ -144,6 +157,7 @@ const ListarViagensPassageiroPage = () => {
           <Button
             variant="contained"
             onClick={() => navigate('/passageiro/viagens/solicitar')}
+            disabled={temViagemAtiva}
             sx={{
               background: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
               textTransform: 'none',
@@ -156,6 +170,12 @@ const ListarViagensPassageiroPage = () => {
         {sucesso && (
           <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setSucesso('')}>
             {sucesso}
+          </Alert>
+        )}
+
+        {temViagemAtiva && (
+          <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
+            Você já possui uma viagem ativa. Finalize ou cancele a viagem atual antes de solicitar uma nova.
           </Alert>
         )}
 
@@ -177,6 +197,7 @@ const ListarViagensPassageiroPage = () => {
             <Button
               variant="contained"
               onClick={() => navigate('/passageiro/viagens/solicitar')}
+              disabled={temViagemAtiva}
               sx={{
                 background: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
                 textTransform: 'none',
@@ -214,7 +235,7 @@ const ListarViagensPassageiroPage = () => {
                     <TableCell>{viagem.destino}</TableCell>
                     <TableCell>
                       <Chip
-                        label={getStatusLabel(viagem.status)}
+                        label={getStatusLabel(viagem.status, viagem.dataHoraAgendada)}
                         color={getStatusColor(viagem.status) as any}
                         size="small"
                       />

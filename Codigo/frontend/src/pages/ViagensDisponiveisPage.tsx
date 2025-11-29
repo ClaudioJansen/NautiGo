@@ -53,6 +53,7 @@ const ViagensDisponiveisPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [viagens, setViagens] = useState<Viagem[]>([])
+  const [viagemAtiva, setViagemAtiva] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
@@ -90,12 +91,38 @@ const ViagensDisponiveisPage = () => {
   const carregarViagens = async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:8080/api/marinheiro/viagens/disponiveis', {
+      // Primeiro verificar se o marinheiro já tem uma viagem aceita
+      const viagensResponse = await axios.get('http://localhost:8080/api/marinheiro/viagens', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
-      setViagens(response.data)
+      
+      // Verificar se há viagem ativa
+      // Viagens agendadas não devem bloquear o marinheiro de ver outras viagens disponíveis
+      // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
+      const viagemAceita = viagensResponse.data.find((v: any) => {
+        // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
+        if (v.status === 'EM_ANDAMENTO') {
+          return true
+        }
+        // Para outros status ativos, só considera se não for agendada
+        const statusAtivo = ['ACEITA', 'AGUARDANDO_APROVACAO_PASSAGEIRO'].includes(v.status)
+        return statusAtivo && !v.dataHoraAgendada
+      })
+      
+      if (viagemAceita) {
+        setViagemAtiva(viagemAceita)
+        setViagens([])
+      } else {
+        setViagemAtiva(null)
+        const response = await axios.get('http://localhost:8080/api/marinheiro/viagens/disponiveis', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        setViagens(response.data)
+      }
       setErro('')
     } catch (error: any) {
       setErro('Erro ao carregar viagens disponíveis')
@@ -260,7 +287,27 @@ const ViagensDisponiveisPage = () => {
           </Alert>
         )}
 
-        {viagens.length === 0 ? (
+        {viagemAtiva ? (
+          <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 3 }}>
+            <DirectionsBoatIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+            <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
+              Você já possui uma viagem ativa
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              Acompanhe a viagem de <strong>{viagemAtiva.passageiroNome}</strong>
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate(`/marinheiro/viagens/${viagemAtiva.id}`)}
+              sx={{
+                background: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)',
+                textTransform: 'none',
+              }}
+            >
+              Acompanhar Viagem
+            </Button>
+          </Paper>
+        ) : viagens.length === 0 ? (
           <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 3 }}>
             <DirectionsBoatIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
             <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
@@ -349,7 +396,18 @@ const ViagensDisponiveisPage = () => {
                         '-'
                       )}
                     </TableCell>
-                    <TableCell>{formatDate(viagem.dataHoraAgendada || viagem.dataHoraSolicitada)}</TableCell>
+                    <TableCell>
+                      {viagem.dataHoraAgendada ? (
+                        formatDate(viagem.dataHoraAgendada)
+                      ) : (
+                        <Chip
+                          label="Partida imediata"
+                          size="small"
+                          color="primary"
+                          sx={{ fontWeight: 600 }}
+                        />
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button

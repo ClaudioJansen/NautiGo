@@ -36,6 +36,20 @@ public class ViagemService {
         Passageiro passageiro = passageiroRepository.findById(passageiroId)
                 .orElseThrow(() -> new RuntimeException("Passageiro não encontrado"));
         
+        // Verificar se o passageiro já tem viagem ativa (não agendada)
+        // Permitir múltiplas viagens apenas se todas forem agendadas
+        if (request.getDataHoraAgendada() == null) {
+            List<Viagem> viagensAtivas = viagemRepository.findByPassageiroAndStatusInAndDataHoraAgendadaIsNull(
+                passageiro,
+                List.of(Viagem.StatusViagem.PENDENTE, Viagem.StatusViagem.AGUARDANDO_APROVACAO_PASSAGEIRO, 
+                        Viagem.StatusViagem.ACEITA, Viagem.StatusViagem.EM_ANDAMENTO)
+            );
+            
+            if (!viagensAtivas.isEmpty()) {
+                throw new RuntimeException("Você já possui uma viagem ativa. Finalize ou cancele a viagem atual antes de solicitar uma nova.");
+            }
+        }
+        
         Viagem viagem = new Viagem();
         viagem.setPassageiro(passageiro);
         viagem.setOrigem(request.getOrigem());

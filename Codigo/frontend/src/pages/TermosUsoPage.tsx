@@ -190,7 +190,7 @@ const TermosUsoPage = () => {
               9. Contato
             </Typography>
             <Typography variant="body1" paragraph sx={{ textAlign: 'justify' }}>
-              Para questões sobre estes Termos de Uso, entre em contato conosco através do email: caujansen@gmail.com
+              Para questões sobre estes Termos de Uso, entre em contato conosco através do email: suporte@nautigo.com
             </Typography>
           </Box>
         </Paper>

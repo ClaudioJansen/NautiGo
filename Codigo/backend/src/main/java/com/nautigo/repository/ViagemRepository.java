@@ -15,5 +15,6 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
     List<Viagem> findByStatusOrderByDataCriacaoDesc(Viagem.StatusViagem status);
     List<Viagem> findByStatusAndMarinheiroIsNullOrderByDataCriacaoDesc(Viagem.StatusViagem status);
     List<Viagem> findByStatusAndMarinheiroIsNullAndIdNotInOrderByDataCriacaoDesc(Viagem.StatusViagem status, List<Long> ids);
+    List<Viagem> findByPassageiroAndStatusInAndDataHoraAgendadaIsNull(Passageiro passageiro, List<Viagem.StatusViagem> statuses);
 }
 

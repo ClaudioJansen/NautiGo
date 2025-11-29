@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Container,
   Box,
@@ -12,7 +12,10 @@ import {
   IconButton,
   MenuItem,
   Grid,
-  Divider
+  Divider,
+  FormControlLabel,
+  Checkbox,
+  CircularProgress
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -32,8 +35,45 @@ const SolicitarViagemPage = () => {
     numeroPessoas: 1,
     valorPropostoCentavos: 0
   })
+  const [agendarViagem, setAgendarViagem] = useState(false)
   const [erro, setErro] = useState('')
   const [loading, setLoading] = useState(false)
+  const [verificando, setVerificando] = useState(true)
+
+  useEffect(() => {
+    verificarViagemAtiva()
+  }, [])
+
+  const verificarViagemAtiva = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/passageiro/viagens', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      
+      // Verificar se há viagem ativa
+      // Viagens agendadas não devem bloquear o passageiro de solicitar novas viagens
+      // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
+      const viagemAtiva = response.data.find((v: any) => {
+        // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
+        if (v.status === 'EM_ANDAMENTO') {
+          return true
+        }
+        // Para outros status ativos, só considera se não for agendada
+        const statusAtivo = ['PENDENTE', 'AGUARDANDO_APROVACAO_PASSAGEIRO', 'ACEITA'].includes(v.status)
+        return statusAtivo && !v.dataHoraAgendada
+      })
+      
+      if (viagemAtiva) {
+        navigate(`/passageiro/viagens/${viagemAtiva.id}`)
+      }
+    } catch (error) {
+      console.error('Erro ao verificar viagens:', error)
+    } finally {
+      setVerificando(false)
+    }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
@@ -91,7 +131,8 @@ const SolicitarViagemPage = () => {
         payload.observacoes = formData.observacoes
       }
 
-      if (formData.dataHoraAgendada) {
+      // Se o usuário marcou para agendar, enviar a data/hora, senão a viagem será imediata
+      if (agendarViagem && formData.dataHoraAgendada) {
         payload.dataHoraAgendada = new Date(formData.dataHoraAgendada).toISOString()
       }
 
@@ -108,6 +149,14 @@ const SolicitarViagemPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (verificando) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%)' }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (
@@ -183,24 +232,44 @@ const SolicitarViagemPage = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Data e Hora Agendada (opcional)"
-                  name="dataHoraAgendada"
-                  type="datetime-local"
-                  value={formData.dataHoraAgendada}
-                  onChange={handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                    },
-                  }}
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={agendarViagem}
+                      onChange={(e) => {
+                        setAgendarViagem(e.target.checked)
+                        if (!e.target.checked) {
+                          setFormData((prev) => ({ ...prev, dataHoraAgendada: '' }))
+                        }
+                      }}
+                    />
+                  }
+                  label="Agendar viagem para depois (opcional)"
                 />
               </Grid>
+
+              {agendarViagem && (
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Data e Hora do Agendamento"
+                    name="dataHoraAgendada"
+                    type="datetime-local"
+                    value={formData.dataHoraAgendada}
+                    onChange={handleChange}
+                    required={agendarViagem}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      },
+                    }}
+                  />
+                </Grid>
+              )}
 
               <Grid item xs={12} md={6}>
                 <TextField

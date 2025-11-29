@@ -83,14 +83,14 @@ const ListarViagensMarinheiroPage = () => {
     }
   }
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string, dataHoraAgendada: string | null = null) => {
     switch (status) {
       case 'PENDENTE':
         return 'Pendente'
       case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
         return 'Aguardando aprovação do passageiro'
       case 'ACEITA':
-        return 'Aceita'
+        return dataHoraAgendada ? 'Agendado' : 'Aceita'
       case 'EM_ANDAMENTO':
         return 'Em Andamento'
       case 'CONCLUIDA':
@@ -202,7 +202,7 @@ const ListarViagensMarinheiroPage = () => {
                     <TableCell>{viagem.destino}</TableCell>
                     <TableCell>
                       <Chip
-                        label={getStatusLabel(viagem.status)}
+                        label={getStatusLabel(viagem.status, viagem.dataHoraAgendada)}
                         color={getStatusColor(viagem.status) as any}
                         size="small"
                       />
