@@ -49,7 +49,7 @@ public class MarinheiroController {
     @GetMapping("/viagens")
     public ResponseEntity<?> listarMinhasViagens(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
         Long usuarioId = getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(usuarioId)

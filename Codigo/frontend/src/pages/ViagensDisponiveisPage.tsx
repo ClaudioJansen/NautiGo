@@ -92,7 +92,8 @@ const ViagensDisponiveisPage = () => {
     try {
       setLoading(true)
       // Primeiro verificar se o marinheiro já tem uma viagem aceita
-      const viagensResponse = await axios.get('http://localhost:8080/api/marinheiro/viagens', {
+      // Buscar com tamanho grande para garantir que encontre viagens ativas
+      const viagensResponse = await axios.get('http://localhost:8080/api/marinheiro/viagens?page=0&size=100', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -101,7 +102,7 @@ const ViagensDisponiveisPage = () => {
       // Verificar se há viagem ativa
       // Viagens agendadas não devem bloquear o marinheiro de ver outras viagens disponíveis
       // EXCETO quando a viagem agendada estiver EM_ANDAMENTO (já foi iniciada)
-      const viagemAceita = viagensResponse.data.find((v: any) => {
+      const viagemAceita = viagensResponse.data.content.find((v: any) => {
         // Se estiver EM_ANDAMENTO, sempre considera ativa (mesmo que agendada)
         if (v.status === 'EM_ANDAMENTO') {
           return true

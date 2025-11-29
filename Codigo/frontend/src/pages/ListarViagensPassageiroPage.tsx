@@ -60,7 +60,7 @@ const ListarViagensPassageiroPage = () => {
   const carregarViagens = async (currentPage: number) => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://localhost:8080/api/passageiro/viagens?page=${currentPage}&size=12`, {
+      const response = await axios.get(`http://localhost:8080/api/passageiro/viagens?page=${currentPage}&size=10`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
