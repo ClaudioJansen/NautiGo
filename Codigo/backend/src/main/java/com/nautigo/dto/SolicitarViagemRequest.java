@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,5 +25,8 @@ public class SolicitarViagemRequest {
     
     @NotNull(message = "Número de pessoas é obrigatório")
     private Integer numeroPessoas;
+
+    @NotNull(message = "Valor proposto é obrigatório")
+    private BigDecimal valorPropostoPassageiro;
 }
 

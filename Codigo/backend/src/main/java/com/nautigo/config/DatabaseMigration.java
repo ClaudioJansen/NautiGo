@@ -28,6 +28,37 @@ public class DatabaseMigration {
             );
             System.out.println("Migração do banco de dados concluída: coluna numero_pessoas adicionada/verificada");
 
+            // Adicionar colunas de valor proposto e contra-proposta se não existirem
+            jdbcTemplate.execute(
+                "DO $$ " +
+                "BEGIN " +
+                "  IF NOT EXISTS (SELECT 1 FROM information_schema.columns " +
+                "                 WHERE table_name='viagens' AND column_name='valor_proposto_passageiro') THEN " +
+                "    ALTER TABLE viagens ADD COLUMN valor_proposto_passageiro NUMERIC(10,2); " +
+                "  END IF; " +
+                "  IF NOT EXISTS (SELECT 1 FROM information_schema.columns " +
+                "                 WHERE table_name='viagens' AND column_name='valor_contra_proposta_marinheiro') THEN " +
+                "    ALTER TABLE viagens ADD COLUMN valor_contra_proposta_marinheiro NUMERIC(10,2); " +
+                "  END IF; " +
+                "END $$;"
+            );
+            System.out.println("Migração do banco de dados concluída: colunas de valores de proposta/contra-proposta adicionadas/verificadas");
+
+            // Atualizar constraint de status da viagem para incluir novo status AGUARDANDO_APROVACAO_PASSAGEIRO
+            jdbcTemplate.execute(
+                "DO $$ " +
+                "BEGIN " +
+                "  IF EXISTS (SELECT 1 FROM information_schema.constraint_column_usage " +
+                "             WHERE table_name = 'viagens' AND constraint_name = 'viagens_status_check') THEN " +
+                "    ALTER TABLE viagens DROP CONSTRAINT viagens_status_check; " +
+                "  END IF; " +
+                "  ALTER TABLE viagens " +
+                "    ADD CONSTRAINT viagens_status_check " +
+                "    CHECK (status IN ('PENDENTE','AGUARDANDO_APROVACAO_PASSAGEIRO','ACEITA','EM_ANDAMENTO','CONCLUIDA','CANCELADA')); " +
+                "END $$;"
+            );
+            System.out.println("Migração do banco de dados concluída: constraint de status da viagem atualizada");
+
             // Criar tabela viagens_recusadas se não existir
             jdbcTemplate.execute(
                 "DO $$ " +

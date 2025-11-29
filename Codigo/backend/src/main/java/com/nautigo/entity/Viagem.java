@@ -56,8 +56,17 @@ public class Viagem {
     @Column(nullable = false)
     private Integer numeroPessoas = 1;
     
+    // Valor final acordado para a viagem
     @Column(precision = 10, scale = 2)
     private BigDecimal valor;
+
+    // Valor inicialmente proposto pelo passageiro ao solicitar a viagem
+    @Column(name = "valor_proposto_passageiro", precision = 10, scale = 2)
+    private BigDecimal valorPropostoPassageiro;
+
+    // Valor de contra-proposta feito pelo marinheiro, aguardando resposta do passageiro
+    @Column(name = "valor_contra_proposta_marinheiro", precision = 10, scale = 2)
+    private BigDecimal valorContraPropostaMarinheiro;
     
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
@@ -79,11 +88,12 @@ public class Viagem {
     }
     
     public enum StatusViagem {
-        PENDENTE,           // Aguardando aceitação de um marinheiro
-        ACEITA,             // Aceita por um marinheiro, aguardando início
-        EM_ANDAMENTO,       // Viagem em andamento
-        CONCLUIDA,          // Viagem concluída
-        CANCELADA           // Viagem cancelada
+        PENDENTE,                           // Aguardando interesse de um marinheiro
+        AGUARDANDO_APROVACAO_PASSAGEIRO,    // Marinheiro enviou contra-proposta, aguardando resposta do passageiro
+        ACEITA,                             // Aceita, aguardando início
+        EM_ANDAMENTO,                       // Viagem em andamento
+        CONCLUIDA,                          // Viagem concluída
+        CANCELADA                           // Viagem cancelada
     }
     
     public enum MetodoPagamento {

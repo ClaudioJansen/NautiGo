@@ -30,7 +30,12 @@ public class ViagemResponse {
     private String nomeBarco;
     private Double notaMediaMarinheiro;
     private Double notaMediaPassageiro;
+    // Valor final acordado
     private BigDecimal valor;
+    // Valor inicialmente proposto pelo passageiro
+    private BigDecimal valorPropostoPassageiro;
+    // Valor de contra-proposta feito pelo marinheiro (quando status = AGUARDANDO_APROVACAO_PASSAGEIRO)
+    private BigDecimal valorContraPropostaMarinheiro;
     private LocalDateTime dataCriacao;
 }
 

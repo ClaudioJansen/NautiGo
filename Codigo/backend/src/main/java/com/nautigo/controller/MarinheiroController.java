@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +79,38 @@ public class MarinheiroController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/viagens/{id}/contra-proposta")
+    public ResponseEntity<?> proporContraProposta(@PathVariable Long id, @RequestBody Map<String, Object> body, HttpServletRequest request) {
+        try {
+            Long usuarioId = getUserIdFromRequest(request);
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            Marinheiro marinheiro = marinheiroRepository.findByUsuario(usuario)
+                    .orElseThrow(() -> new RuntimeException("Usuário não é um marinheiro"));
+
+            Object valorObj = body.get("novoValor");
+            if (valorObj == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("message", "novoValor é obrigatório"));
+            }
+
+            BigDecimal novoValor;
+            try {
+                novoValor = new BigDecimal(valorObj.toString());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("message", "Valor inválido para novoValor"));
+            }
+
+            ViagemResponse viagem = viagemService.proporContraProposta(id, marinheiro.getId(), novoValor);
+            return ResponseEntity.ok(viagem);
+        } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", e.getMessage()));
         }
     }
 

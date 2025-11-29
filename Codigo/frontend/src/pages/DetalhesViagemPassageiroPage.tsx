@@ -14,7 +14,11 @@ import {
   Grid,
   Card,
   CardContent,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -43,6 +47,9 @@ interface Viagem {
   notaMediaMarinheiro: number | null
   numeroPessoas: number
   observacoes: string | null
+  valor: number | null
+  valorPropostoPassageiro: number | null
+  valorContraPropostaMarinheiro: number | null
 }
 
 const DetalhesViagemPassageiroPage = () => {
@@ -54,6 +61,7 @@ const DetalhesViagemPassageiroPage = () => {
   const [erro, setErro] = useState('')
   const [dialogAvaliacaoAberto, setDialogAvaliacaoAberto] = useState(false)
   const [jaAvaliou, setJaAvaliou] = useState(false)
+  const [dialogContraPropostaAberto, setDialogContraPropostaAberto] = useState(false)
 
   useEffect(() => {
     carregarViagem(true) // Primeira carga com loading
@@ -78,33 +86,50 @@ const DetalhesViagemPassageiroPage = () => {
         setViagem(viagemEncontrada)
         setErro('')
         
-        // Verificar se viagem foi concluída e se já foi avaliada
-        if (viagemEncontrada.status === 'CONCLUIDA' && viagemEncontrada.marinheiroNome && !jaAvaliou) {
-          try {
-            const verificarResponse = await axios.get(
-              `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`
+        // Se viagem foi concluída, tratar fluxo de avaliação (sem redirecionar ainda)
+        if (viagemEncontrada.status === 'CONCLUIDA' && viagemEncontrada.marinheiroNome) {
+          const handledKey = `viagem_${viagemEncontrada.id}_passageiro_finalizada`
+          const jaTratouConclusao = localStorage.getItem(handledKey) === 'true'
+
+          if (!jaTratouConclusao) {
+            try {
+              const verificarResponse = await axios.get(
+                `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                  }
                 }
+              )
+              setJaAvaliou(verificarResponse.data.jaAvaliou)
+              
+              // Se não avaliou ainda, mostrar dialog após um pequeno delay
+              if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
+                setTimeout(() => {
+                  setDialogAvaliacaoAberto(true)
+                }, 1500)
               }
-            )
-            setJaAvaliou(verificarResponse.data.jaAvaliou)
-            
-            // Se não avaliou ainda, mostrar dialog após um pequeno delay
-            if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
-              setTimeout(() => {
-                setDialogAvaliacaoAberto(true)
-              }, 1500)
-            }
-          } catch (error) {
-            // Se der erro, tentar mostrar dialog mesmo assim
-            if (!dialogAvaliacaoAberto) {
-              setTimeout(() => {
-                setDialogAvaliacaoAberto(true)
-              }, 1500)
+
+              // Se já avaliou anteriormente (outro dispositivo), marcar como tratado
+              if (verificarResponse.data.jaAvaliou) {
+                localStorage.setItem(handledKey, 'true')
+              }
+            } catch (error) {
+              // Se der erro, tentar mostrar dialog mesmo assim
+              if (!dialogAvaliacaoAberto) {
+                setTimeout(() => {
+                  setDialogAvaliacaoAberto(true)
+                }, 1500)
+              }
             }
           }
+        }
+
+        // Se existe contra-proposta pendente, abrir pop-up para o passageiro
+        if (viagemEncontrada.status === 'AGUARDANDO_APROVACAO_PASSAGEIRO') {
+          setDialogContraPropostaAberto(true)
+        } else {
+          setDialogContraPropostaAberto(false)
         }
       } else {
         setErro('Viagem não encontrada')
@@ -123,6 +148,8 @@ const DetalhesViagemPassageiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'warning'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'info'
       case 'ACEITA':
         return 'info'
       case 'EM_ANDAMENTO':
@@ -140,6 +167,8 @@ const DetalhesViagemPassageiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'Aguardando aceitação'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'Aguardando sua aprovação'
       case 'ACEITA':
         return 'Marinheiro a caminho'
       case 'EM_ANDAMENTO':
@@ -151,6 +180,11 @@ const DetalhesViagemPassageiroPage = () => {
       default:
         return status
     }
+  }
+
+  const formatCurrency = (value: number | null) => {
+    if (value == null) return '-'
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
   const formatDate = (dateString: string | null) => {
@@ -207,7 +241,7 @@ const DetalhesViagemPassageiroPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-              Viagem #{viagem.id}
+              Viagem com {viagem.marinheiroNome || 'marinheiro'}
             </Typography>
             <Chip
               label={getStatusLabel(viagem.status)}
@@ -381,6 +415,35 @@ const DetalhesViagemPassageiroPage = () => {
               <Card sx={{ borderRadius: 2, border: '1px solid rgba(13, 71, 161, 0.1)' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <PaymentIcon sx={{ mr: 1, color: 'secondary.main' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Valor da Viagem
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ pl: 4 }}>
+                    {viagem.status === 'PENDENTE' && (
+                      <>Você propôs {formatCurrency(viagem.valorPropostoPassageiro)}</>
+                    )}
+                    {viagem.status === 'AGUARDANDO_APROVACAO_PASSAGEIRO' && (
+                      <>
+                        Marinheiro propôs {formatCurrency(viagem.valorContraPropostaMarinheiro)} (aguardando sua decisão)
+                      </>
+                    )}
+                    {['ACEITA', 'EM_ANDAMENTO', 'CONCLUIDA'].includes(viagem.status) && (
+                      <>Valor acordado: {formatCurrency(viagem.valor)}</>
+                    )}
+                    {viagem.status === 'CANCELADA' && (
+                      <>Viagem cancelada. Valor não será cobrado pela plataforma.</>
+                    )}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 2, border: '1px solid rgba(13, 71, 161, 0.1)' }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <AccessTimeIcon sx={{ mr: 1, color: 'primary.main' }} />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Data/Hora
@@ -412,17 +475,6 @@ const DetalhesViagemPassageiroPage = () => {
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/passageiro/viagens')}
-              sx={{
-                textTransform: 'none',
-                borderColor: '#0d47a1',
-                color: '#0d47a1',
-              }}
-            >
-              Voltar para Lista
-            </Button>
             {(viagem.status === 'PENDENTE' || viagem.status === 'ACEITA') && (
               <Button
                 variant="contained"
@@ -461,11 +513,80 @@ const DetalhesViagemPassageiroPage = () => {
           viagemId={viagem.id}
           avaliadoNome={viagem.marinheiroNome}
           onAvaliacaoConcluida={() => {
+            const handledKey = `viagem_${viagem.id}_passageiro_finalizada`
+            localStorage.setItem(handledKey, 'true')
             setJaAvaliou(true)
             setDialogAvaliacaoAberto(false)
-            carregarViagem(false)
+            navigate('/passageiro/dashboard', {
+              state: { success: 'Viagem concluída com sucesso!' }
+            })
           }}
         />
+      )}
+
+      {viagem && viagem.status === 'AGUARDANDO_APROVACAO_PASSAGEIRO' && (
+        <Dialog
+          open={dialogContraPropostaAberto}
+          onClose={() => setDialogContraPropostaAberto(false)}
+        >
+          <DialogTitle>Nova proposta de valor</DialogTitle>
+          <DialogContent>
+            <Typography gutterBottom>
+              <strong>{viagem.marinheiroNome}</strong> aceita fazer sua viagem por{' '}
+              {formatCurrency(viagem.valorContraPropostaMarinheiro)}.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Você pode aceitar esse valor ou recusar e aguardar outro marinheiro.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    `http://localhost:8080/api/passageiro/viagens/${viagem.id}/contra-proposta/responder`,
+                    { aceitar: false },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                      }
+                    }
+                  )
+                  setDialogContraPropostaAberto(false)
+                  carregarViagem(false)
+                } catch (error: any) {
+                  alert(error.response?.data?.message || 'Erro ao recusar contra-proposta')
+                  console.error(error)
+                }
+              }}
+            >
+              Recusar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    `http://localhost:8080/api/passageiro/viagens/${viagem.id}/contra-proposta/responder`,
+                    { aceitar: true },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                      }
+                    }
+                  )
+                  setDialogContraPropostaAberto(false)
+                  carregarViagem(false)
+                } catch (error: any) {
+                  alert(error.response?.data?.message || 'Erro ao aceitar contra-proposta')
+                  console.error(error)
+                }
+              }}
+            >
+              Aceitar
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
     </Box>
   )

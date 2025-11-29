@@ -75,6 +75,8 @@ const ListarViagensPassageiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'warning'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'info'
       case 'ACEITA':
         return 'info'
       case 'EM_ANDAMENTO':
@@ -92,6 +94,8 @@ const ListarViagensPassageiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'Pendente'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'Aguardando sua aprovação'
       case 'ACEITA':
         return 'Aceita'
       case 'EM_ANDAMENTO':

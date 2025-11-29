@@ -75,5 +75,29 @@ public class PassageiroController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/viagens/{id}/contra-proposta/responder")
+    public ResponseEntity<?> responderContraProposta(@PathVariable Long id, @RequestBody Map<String, Boolean> body, HttpServletRequest request) {
+        try {
+            Long usuarioId = getUserIdFromRequest(request);
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            var passageiro = passageiroRepository.findByUsuario(usuario)
+                    .orElseThrow(() -> new RuntimeException("Usuário não é um passageiro"));
+
+            Boolean aceitar = body.get("aceitar");
+            if (aceitar == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("message", "Campo 'aceitar' é obrigatório"));
+            }
+
+            ViagemResponse viagem = viagemService.responderContraProposta(id, passageiro.getId(), aceitar);
+            return ResponseEntity.ok(viagem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
 }
 

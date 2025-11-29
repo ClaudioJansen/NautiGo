@@ -45,6 +45,8 @@ public class ViagemService {
         viagem.setMetodoPagamento(request.getMetodoPagamento());
         viagem.setNumeroPessoas(request.getNumeroPessoas() != null ? request.getNumeroPessoas() : 1);
         viagem.setStatus(Viagem.StatusViagem.PENDENTE);
+        viagem.setValorPropostoPassageiro(request.getValorPropostoPassageiro());
+        viagem.setValor(null); // valor final só será definido quando houver aceite
         
         viagem = viagemRepository.save(viagem);
         
@@ -111,6 +113,9 @@ public class ViagemService {
         }
         
         viagem.setMarinheiro(marinheiro);
+        // Aceitou diretamente o valor do passageiro
+        viagem.setValor(viagem.getValorPropostoPassageiro());
+        viagem.setValorContraPropostaMarinheiro(null);
         viagem.setStatus(Viagem.StatusViagem.ACEITA);
         
         viagem = viagemRepository.save(viagem);
@@ -147,6 +152,80 @@ public class ViagemService {
         }
 
         // A viagem continua pendente para outros marinheiros, só deixa de aparecer para este
+        return toResponse(viagem);
+    }
+
+    @Transactional
+    public ViagemResponse proporContraProposta(Long viagemId, Long marinheiroId, java.math.BigDecimal novoValor) {
+        Viagem viagem = viagemRepository.findById(viagemId)
+                .orElseThrow(() -> new RuntimeException("Viagem não encontrada"));
+
+        if (viagem.getStatus() != Viagem.StatusViagem.PENDENTE) {
+            throw new RuntimeException("Apenas viagens pendentes podem receber contra-proposta");
+        }
+
+        if (viagem.getMarinheiro() != null && !viagem.getMarinheiro().getId().equals(marinheiroId)) {
+            throw new RuntimeException("Viagem já está em negociação com outro marinheiro");
+        }
+
+        Marinheiro marinheiro = marinheiroRepository.findById(marinheiroId)
+                .orElseThrow(() -> new RuntimeException("Marinheiro não encontrado"));
+
+        if (marinheiro.getStatusAprovacao() != Marinheiro.StatusAprovacao.APROVADO) {
+            throw new RuntimeException("Marinheiro não está aprovado para propor valores");
+        }
+
+        if (novoValor == null || novoValor.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Valor da contra-proposta deve ser maior que zero");
+        }
+
+        viagem.setMarinheiro(marinheiro);
+        viagem.setValorContraPropostaMarinheiro(novoValor);
+        viagem.setStatus(Viagem.StatusViagem.AGUARDANDO_APROVACAO_PASSAGEIRO);
+
+        viagem = viagemRepository.save(viagem);
+        return toResponse(viagem);
+    }
+
+    @Transactional
+    public ViagemResponse responderContraProposta(Long viagemId, Long passageiroId, boolean aceitar) {
+        Viagem viagem = viagemRepository.findById(viagemId)
+                .orElseThrow(() -> new RuntimeException("Viagem não encontrada"));
+
+        if (viagem.getStatus() != Viagem.StatusViagem.AGUARDANDO_APROVACAO_PASSAGEIRO) {
+            throw new RuntimeException("Esta viagem não está aguardando resposta de contra-proposta");
+        }
+
+        if (!viagem.getPassageiro().getId().equals(passageiroId)) {
+            throw new RuntimeException("Você não tem permissão para responder esta contra-proposta");
+        }
+
+        if (viagem.getMarinheiro() == null || viagem.getValorContraPropostaMarinheiro() == null) {
+            throw new RuntimeException("Contra-proposta inválida");
+        }
+
+        if (aceitar) {
+            // Passageiro aceitou o valor do marinheiro
+            viagem.setValor(viagem.getValorContraPropostaMarinheiro());
+            viagem.setStatus(Viagem.StatusViagem.ACEITA);
+            // Limpa o campo de contra-proposta
+            viagem.setValorContraPropostaMarinheiro(null);
+        } else {
+            // Passageiro recusou a contra-proposta: volta a ficar pendente sem marinheiro
+            // e registra recusa para este marinheiro (para não voltar a aparecer para ele)
+            if (!viagemRecusadaRepository.existsByViagem_IdAndMarinheiro_Id(viagem.getId(), viagem.getMarinheiro().getId())) {
+                ViagemRecusada recusa = new ViagemRecusada();
+                recusa.setViagem(viagem);
+                recusa.setMarinheiro(viagem.getMarinheiro());
+                viagemRecusadaRepository.save(recusa);
+            }
+
+            viagem.setMarinheiro(null);
+            viagem.setValorContraPropostaMarinheiro(null);
+            viagem.setStatus(Viagem.StatusViagem.PENDENTE);
+        }
+
+        viagem = viagemRepository.save(viagem);
         return toResponse(viagem);
     }
     
@@ -279,6 +358,8 @@ public class ViagemService {
                 notaMediaMarinheiro,
                 notaMediaPassageiro,
                 viagem.getValor(),
+                viagem.getValorPropostoPassageiro(),
+                viagem.getValorContraPropostaMarinheiro(),
                 viagem.getDataCriacao()
         );
     }

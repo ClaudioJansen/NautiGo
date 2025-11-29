@@ -21,9 +21,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText
+  DialogContentText,
+  TextField
 } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -44,24 +45,47 @@ interface Viagem {
   numeroPessoas: number
   notaMediaPassageiro: number | null
   observacoes: string | null
+   valorPropostoPassageiro: number | null
 }
 
 const ViagensDisponiveisPage = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [viagens, setViagens] = useState<Viagem[]>([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'info'>('success')
   const [dialogAberto, setDialogAberto] = useState(false)
   const [viagemSelecionada, setViagemSelecionada] = useState<Viagem | null>(null)
+  const [novoValorCentavos, setNovoValorCentavos] = useState(0)
 
   useEffect(() => {
+    // Mensagem vinda de outras telas (por exemplo, passageiro recusou a proposta)
+    if ((location.state as any)?.info) {
+      setSucesso((location.state as any).info)
+      setAlertSeverity('info')
+      // Limpar o state da URL para não repetir a mensagem em futuros navigates
+      window.history.replaceState({}, document.title)
+    }
+
     carregarViagens()
     // Recarregar a cada 10 segundos para pegar novas viagens
     const interval = setInterval(carregarViagens, 10000)
     return () => clearInterval(interval)
-  }, [])
+  }, [location.state])
+
+  // Esconder automaticamente mensagens de sucesso/info após alguns segundos
+  useEffect(() => {
+    if (!sucesso) return
+
+    const timer = setTimeout(() => {
+      setSucesso('')
+    }, 4000)
+
+    return () => clearTimeout(timer)
+  }, [sucesso])
 
   const carregarViagens = async () => {
     try {
@@ -83,12 +107,15 @@ const ViagensDisponiveisPage = () => {
 
   const abrirDialog = (viagem: Viagem) => {
     setViagemSelecionada(viagem)
+    const base = viagem.valorPropostoPassageiro != null ? Math.round(viagem.valorPropostoPassageiro * 100) : 0
+    setNovoValorCentavos(base)
     setDialogAberto(true)
   }
 
   const fecharDialog = () => {
     setDialogAberto(false)
     setViagemSelecionada(null)
+    setNovoValorCentavos(0)
   }
 
   const aceitarViagem = async () => {
@@ -105,6 +132,7 @@ const ViagensDisponiveisPage = () => {
         }
       )
       setSucesso('Viagem aceita com sucesso!')
+      setAlertSeverity('success')
       fecharDialog()
       // Redirecionar para detalhes da viagem aceita
       setTimeout(() => {
@@ -128,6 +156,7 @@ const ViagensDisponiveisPage = () => {
         }
       )
       setSucesso('Viagem recusada com sucesso!')
+      setAlertSeverity('success')
       fecharDialog()
       // Recarregar lista para remover a viagem recusada
       carregarViagens()
@@ -137,9 +166,56 @@ const ViagensDisponiveisPage = () => {
     }
   }
 
+  const enviarContraProposta = async () => {
+    if (!viagemSelecionada) return
+    if (!novoValorCentavos || novoValorCentavos <= 0) {
+      setErro('Informe um valor válido para a contra-proposta')
+      return
+    }
+
+    try {
+      await axios.post(
+        `http://localhost:8080/api/marinheiro/viagens/${viagemSelecionada.id}/contra-proposta`,
+        { novoValor: novoValorCentavos / 100 },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      )
+      setSucesso('Contra-proposta enviada para o passageiro!')
+      setAlertSeverity('success')
+      fecharDialog()
+      // Ir direto para a tela de detalhes dessa viagem para o marinheiro acompanhar o status
+      setTimeout(() => {
+        navigate(`/marinheiro/viagens/${viagemSelecionada.id}`)
+      }, 500)
+    } catch (error: any) {
+      setErro(error.response?.data?.message || 'Erro ao enviar contra-proposta')
+      console.error(error)
+    }
+  }
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('pt-BR')
+  }
+
+  const formatCurrency = (valor: number) => {
+    return (valor / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  }
+
+  const handleNovoValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '') // Remove tudo que não é dígito
+    let newCentavos = parseInt(value || '0', 10)
+
+    // Limita a 9 dígitos para evitar números muito grandes
+    if (value.length > 9) {
+      newCentavos = parseInt(value.substring(0, 9), 10)
+    }
+
+    setNovoValorCentavos(newCentavos)
+    setErro('')
   }
 
   if (loading && viagens.length === 0) {
@@ -173,7 +249,7 @@ const ViagensDisponiveisPage = () => {
         </Typography>
 
         {sucesso && (
-          <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setSucesso('')}>
+          <Alert severity={alertSeverity} sx={{ mb: 3, borderRadius: 2 }} onClose={() => setSucesso('')}>
             {sucesso}
           </Alert>
         )}
@@ -204,6 +280,7 @@ const ViagensDisponiveisPage = () => {
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Destino</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Pessoas</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Pagamento</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600 }}>Valor Proposto</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Data/Hora</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 600 }}>Ação</TableCell>
                 </TableRow>
@@ -261,6 +338,17 @@ const ViagensDisponiveisPage = () => {
                         color={viagem.metodoPagamento === 'PIX' ? 'primary' : 'default'}
                       />
                     </TableCell>
+                    <TableCell>
+                      {viagem.valorPropostoPassageiro != null ? (
+                        <Chip
+                          label={`R$ ${viagem.valorPropostoPassageiro.toFixed(2)}`}
+                          size="small"
+                          color="success"
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
                     <TableCell>{formatDate(viagem.dataHoraAgendada || viagem.dataHoraSolicitada)}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
@@ -278,7 +366,7 @@ const ViagensDisponiveisPage = () => {
                             },
                           }}
                         >
-                          Aceitar
+                          Analisar
                         </Button>
                         <Button
                           variant="outlined"
@@ -354,6 +442,12 @@ const ViagensDisponiveisPage = () => {
               <Typography variant="body2" sx={{ mb: 1 }}>
                 <strong>Pagamento:</strong> {viagemSelecionada.metodoPagamento === 'DINHEIRO' ? 'Dinheiro' : 'PIX'}
               </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                <strong>Valor proposto pelo passageiro:</strong>{' '}
+                {viagemSelecionada.valorPropostoPassageiro != null
+                  ? `R$ ${viagemSelecionada.valorPropostoPassageiro.toFixed(2)}`
+                  : 'Não informado'}
+              </Typography>
               {viagemSelecionada.observacoes && (
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   <strong>Observações:</strong> {viagemSelecionada.observacoes}
@@ -362,31 +456,64 @@ const ViagensDisponiveisPage = () => {
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 2, display: 'flex', justifyContent: 'space-between' }}>
-          <Button onClick={fecharDialog} sx={{ textTransform: 'none' }}>
-            Fechar
-          </Button>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+        <DialogActions sx={{ p: 3, pt: 2, flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ width: '100%' }}>
             {viagemSelecionada && (
-              <Button
-                onClick={() => recusarViagem(viagemSelecionada)}
-                color="error"
-                variant="outlined"
-                sx={{ textTransform: 'none' }}
-              >
-                Recusar
-              </Button>
+              <Typography variant="body2" sx={{ mb: 1.5, color: 'text.secondary' }}>
+                Se preferir, você pode propor um novo valor ao passageiro.
+              </Typography>
             )}
-            <Button
-              onClick={aceitarViagem}
-              variant="contained"
-              sx={{
-                textTransform: 'none',
-                background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
-              }}
-            >
-              Aceitar
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+              <TextField
+                label="Novo valor (R$)"
+                type="text"
+                size="small"
+                value={`R$ ${(novoValorCentavos / 100).toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+                onChange={handleNovoValorChange}
+                sx={{ flexGrow: 1, maxWidth: 200 }}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              />
+              <Button
+                onClick={enviarContraProposta}
+                variant="contained"
+                color="secondary"
+                sx={{
+                  textTransform: 'none',
+                }}
+              >
+                Enviar novo valor
+              </Button>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <Button onClick={fecharDialog} sx={{ textTransform: 'none' }}>
+              Fechar
             </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {viagemSelecionada && (
+                <Button
+                  onClick={() => recusarViagem(viagemSelecionada)}
+                  color="error"
+                  variant="outlined"
+                  sx={{ textTransform: 'none' }}
+                >
+                  Recusar
+                </Button>
+              )}
+              <Button
+                onClick={aceitarViagem}
+                variant="contained"
+                sx={{
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                }}
+              >
+                Aceitar
+              </Button>
+            </Box>
           </Box>
         </DialogActions>
       </Dialog>

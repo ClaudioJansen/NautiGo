@@ -17,7 +17,6 @@ import {
   Divider
 } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PersonIcon from '@mui/icons-material/Person'
@@ -27,6 +26,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
+import StarIcon from '@mui/icons-material/Star'
+import { Rating } from '@mui/material'
 import axios from 'axios'
 import AvaliarViagemDialog from '../components/AvaliarViagemDialog'
 
@@ -39,13 +40,16 @@ interface Viagem {
   dataHoraSolicitada: string
   dataHoraAgendada: string | null
   passageiroNome: string
+  notaMediaPassageiro?: number | null
   numeroPessoas: number
   observacoes: string | null
+  valor: number | null
+  valorPropostoPassageiro: number | null
+  valorContraPropostaMarinheiro: number | null
 }
 
 const DetalhesViagemMarinheiroPage = () => {
   const { id } = useParams()
-  const { user } = useAuth()
   const navigate = useNavigate()
   const [viagem, setViagem] = useState<Viagem | null>(null)
   const [loading, setLoading] = useState(true)
@@ -78,34 +82,54 @@ const DetalhesViagemMarinheiroPage = () => {
         setErro('')
         
         // Verificar se viagem foi concluída e se já foi avaliada
-        if (viagemEncontrada.status === 'CONCLUIDA' && !jaAvaliou) {
-          try {
-            const verificarResponse = await axios.get(
-              `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`
+        if (viagemEncontrada.status === 'CONCLUIDA') {
+          const handledKey = `viagem_${viagemEncontrada.id}_marinheiro_finalizada`
+          const jaTratouConclusao = localStorage.getItem(handledKey) === 'true'
+
+          if (!jaTratouConclusao) {
+            try {
+              const verificarResponse = await axios.get(
+                `http://localhost:8080/api/avaliacoes/viagens/${id}/verificar`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                  }
                 }
+              )
+              setJaAvaliou(verificarResponse.data.jaAvaliou)
+              
+              // Se não avaliou ainda, mostrar dialog após um pequeno delay
+              if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
+                setTimeout(() => {
+                  setDialogAvaliacaoAberto(true)
+                }, 1500)
               }
-            )
-            setJaAvaliou(verificarResponse.data.jaAvaliou)
-            
-            // Se não avaliou ainda, mostrar dialog após um pequeno delay
-            if (!verificarResponse.data.jaAvaliou && !dialogAvaliacaoAberto) {
-              setTimeout(() => {
-                setDialogAvaliacaoAberto(true)
-              }, 1500)
-            }
-          } catch (error) {
-            // Se der erro, tentar mostrar dialog mesmo assim
-            if (!dialogAvaliacaoAberto) {
-              setTimeout(() => {
-                setDialogAvaliacaoAberto(true)
-              }, 1500)
+
+              // Se já avaliou anteriormente (outro dispositivo), marcar como tratado
+              if (verificarResponse.data.jaAvaliou) {
+                localStorage.setItem(handledKey, 'true')
+              }
+            } catch (error) {
+              // Se der erro, tentar mostrar dialog mesmo assim
+              if (!dialogAvaliacaoAberto) {
+                setTimeout(() => {
+                  setDialogAvaliacaoAberto(true)
+                }, 1500)
+              }
             }
           }
         }
       } else {
+        // Se a viagem deixou de existir para este marinheiro (por exemplo, passageiro recusou a contra-proposta),
+        // voltar para a lista de corridas em vez de exibir erro de "não encontrada"
+        if (!isInitialLoad) {
+          navigate('/marinheiro/viagens/disponiveis', {
+            state: {
+              info: 'O passageiro recusou sua proposta.'
+            }
+          })
+          return
+        }
         setErro('Viagem não encontrada')
       }
     } catch (error: any) {
@@ -154,7 +178,7 @@ const DetalhesViagemMarinheiroPage = () => {
         }
       })
       setSucesso('Viagem concluída com sucesso!')
-      // Recarregar a viagem para atualizar o status
+      // Recarregar a viagem para atualizar o status e permitir avaliação
       setTimeout(() => {
         carregarViagem(true)
       }, 500)
@@ -168,6 +192,8 @@ const DetalhesViagemMarinheiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'warning'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'info'
       case 'ACEITA':
         return 'info'
       case 'EM_ANDAMENTO':
@@ -185,6 +211,8 @@ const DetalhesViagemMarinheiroPage = () => {
     switch (status) {
       case 'PENDENTE':
         return 'Pendente'
+      case 'AGUARDANDO_APROVACAO_PASSAGEIRO':
+        return 'Aguardando aprovação do passageiro'
       case 'ACEITA':
         return 'Aceita - Aguardando início'
       case 'EM_ANDAMENTO':
@@ -201,6 +229,11 @@ const DetalhesViagemMarinheiroPage = () => {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('pt-BR')
+  }
+
+  const formatCurrency = (value: number | null) => {
+    if (value == null) return '-'
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
   if (loading && !viagem) {
@@ -252,7 +285,7 @@ const DetalhesViagemMarinheiroPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-              Corrida #{viagem.id}
+              Viagem de {viagem.passageiroNome}
             </Typography>
             <Chip
               label={getStatusLabel(viagem.status)}
@@ -319,6 +352,26 @@ const DetalhesViagemMarinheiroPage = () => {
                   <Typography variant="body1" sx={{ pl: 4, fontWeight: 500 }}>
                     {viagem.passageiroNome}
                   </Typography>
+                  {viagem.notaMediaPassageiro !== undefined && viagem.notaMediaPassageiro !== null && (
+                    <Box sx={{ pl: 4, mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Rating
+                        value={viagem.notaMediaPassageiro}
+                        readOnly
+                        precision={0.1}
+                        size="small"
+                        icon={<StarIcon sx={{ fontSize: 20 }} />}
+                        emptyIcon={<StarIcon sx={{ fontSize: 20, opacity: 0.3 }} />}
+                        sx={{
+                          '& .MuiRating-iconFilled': {
+                            color: '#ffc107',
+                          },
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        <strong>{viagem.notaMediaPassageiro.toFixed(1)}</strong> / 5.0
+                      </Typography>
+                    </Box>
+                  )}
                 </CardContent>
               </Card>
             </Grid>
@@ -334,6 +387,35 @@ const DetalhesViagemMarinheiroPage = () => {
                   </Box>
                   <Typography variant="body1" sx={{ pl: 4, fontWeight: 500, fontSize: '1.1rem' }}>
                     {viagem.origem}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 2, border: '1px solid rgba(13, 71, 161, 0.1)' }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <PaymentIcon sx={{ mr: 1, color: 'secondary.main' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Valor da Viagem
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ pl: 4 }}>
+                    {viagem.status === 'PENDENTE' && (
+                      <>Passageiro propôs {formatCurrency(viagem.valorPropostoPassageiro)}</>
+                    )}
+                    {viagem.status === 'AGUARDANDO_APROVACAO_PASSAGEIRO' && (
+                      <>
+                        Você propôs {formatCurrency(viagem.valorContraPropostaMarinheiro)}. Aguardando aprovação do passageiro.
+                      </>
+                    )}
+                    {['ACEITA', 'EM_ANDAMENTO', 'CONCLUIDA'].includes(viagem.status) && (
+                      <>Valor acordado: {formatCurrency(viagem.valor)}</>
+                    )}
+                    {viagem.status === 'CANCELADA' && (
+                      <>Viagem cancelada. Valor não será cobrado pela plataforma.</>
+                    )}
                   </Typography>
                 </CardContent>
               </Card>
@@ -422,18 +504,6 @@ const DetalhesViagemMarinheiroPage = () => {
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/marinheiro/viagens')}
-              sx={{
-                textTransform: 'none',
-                borderColor: '#0d47a1',
-                color: '#0d47a1',
-              }}
-            >
-              Voltar para Lista
-            </Button>
-            
             {viagem.status === 'ACEITA' && (
               <Button
                 variant="contained"
@@ -501,9 +571,13 @@ const DetalhesViagemMarinheiroPage = () => {
           viagemId={viagem.id}
           avaliadoNome={viagem.passageiroNome}
           onAvaliacaoConcluida={() => {
+            const handledKey = `viagem_${viagem.id}_marinheiro_finalizada`
+            localStorage.setItem(handledKey, 'true')
             setJaAvaliou(true)
             setDialogAvaliacaoAberto(false)
-            carregarViagem(false)
+            navigate('/marinheiro/dashboard', {
+              state: { success: 'Viagem concluída com sucesso!' }
+            })
           }}
         />
       )}

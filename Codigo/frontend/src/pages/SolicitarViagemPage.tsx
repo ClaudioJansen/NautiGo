@@ -29,17 +29,36 @@ const SolicitarViagemPage = () => {
     observacoes: '',
     dataHoraAgendada: '',
     metodoPagamento: 'DINHEIRO' as 'DINHEIRO' | 'PIX',
-    numeroPessoas: 1
+    numeroPessoas: 1,
+    valorPropostoCentavos: 0
   })
   const [erro, setErro] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.type === 'number' ? parseInt(e.target.value) || 1 : e.target.value
-    })
+    const { name, value, type } = e.target
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'number' ? parseInt(value) || 1 : value
+    }))
     setErro('')
+  }
+
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '')
+    const centavos = raw ? parseInt(raw, 10) : 0
+
+    setFormData((prev) => ({
+      ...prev,
+      valorPropostoCentavos: centavos
+    }))
+    setErro('')
+  }
+
+  const formatCurrency = (centavos: number) => {
+    const valor = centavos / 100
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,12 +72,19 @@ const SolicitarViagemPage = () => {
       return
     }
 
+    if (!formData.valorPropostoCentavos || formData.valorPropostoCentavos <= 0) {
+      setErro('Informe um valor válido para a viagem')
+      setLoading(false)
+      return
+    }
+
     try {
       const payload: any = {
         origem: formData.origem,
         destino: formData.destino,
         metodoPagamento: formData.metodoPagamento,
-        numeroPessoas: formData.numeroPessoas || 1
+        numeroPessoas: formData.numeroPessoas || 1,
+        valorPropostoPassageiro: formData.valorPropostoCentavos / 100
       }
 
       if (formData.observacoes) {
@@ -186,6 +212,24 @@ const SolicitarViagemPage = () => {
                   onChange={handleChange}
                   required
                   inputProps={{ min: 1, max: 100 }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Quanto você está disposto a pagar (R$)"
+                  name="valorPropostoPassageiro"
+                  type="text"
+                  value={formatCurrency(formData.valorPropostoCentavos)}
+                  onChange={handleValorChange}
+                  required
+                  inputProps={{ inputMode: 'numeric' }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,

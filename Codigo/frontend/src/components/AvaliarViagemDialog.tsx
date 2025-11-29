@@ -56,7 +56,7 @@ const AvaliarViagemDialog = ({
         }
       )
       onAvaliacaoConcluida()
-      handleClose()
+      handleCloseInternal()
     } catch (error: any) {
       setErro(error.response?.data?.message || 'Erro ao avaliar viagem')
     } finally {
@@ -64,7 +64,7 @@ const AvaliarViagemDialog = ({
     }
   }
 
-  const handleClose = () => {
+  const handleCloseInternal = () => {
     setNota(5)
     setComentario('')
     setErro('')
@@ -74,7 +74,7 @@ const AvaliarViagemDialog = ({
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={handleCloseInternal}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -142,7 +142,10 @@ const AvaliarViagemDialog = ({
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2 }}>
         <Button
-          onClick={handleClose}
+          onClick={() => {
+            onAvaliacaoConcluida()
+            handleCloseInternal()
+          }}
           disabled={loading}
           sx={{ textTransform: 'none' }}
         >
