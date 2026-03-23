@@ -1,0 +1,26 @@
+- Fazendo diagrama de classes e de sequencia
+
+1. Está faltando alguns diagramas de classe, tem que fazer 1 por pacote, fez só das entidades
+
+2. Diagrama de sequencia e contratos, o cursor já gerou os contratos, tem que pegar e gerar os diagramas no manus
+  e tambem fazer as tabelas dos contratos igual o template
+
+3. Mudar a imagem que tem o diagrama de classes para a imagem aparecendo os pacotes
+
+Ver a possibilidade de assinar o Manus AI
+
+Atividade A1: Done
+
+Atividade A2: Done
+
+Atividade A3: Done
+
+Atividade A4: Em desenvolvimento (Diagramas acima)
+
+Atividade A5: Backlog
+
+Atividade A6: Backlog
+
+Atividade A7: Backlog
+
+Atividade A8: Backlog

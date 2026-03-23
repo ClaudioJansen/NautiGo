@@ -1,0 +1,600 @@
+@startuml NautiGo_Class_Diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' Package: entity
+package "com.nautigo.entity" {
+  class Usuario <<entity>> {
+    -Long id {PK}
+    -String email {unique}
+    -String senha
+    -String nome
+    -String telefone
+    -Boolean isAdmin
+    -Boolean ativo
+    -LocalDateTime dataCriacao
+    -LocalDateTime dataAtualizacao
+    +getAuthorities() : Collection<GrantedAuthority>
+    +getPassword() : String
+    +getUsername() : String
+    +isAccountNonExpired() : boolean
+    +isAccountNonLocked() : boolean
+    +isCredentialsNonExpired() : boolean
+    +isEnabled() : boolean
+    #onCreate() : void {@PrePersist}
+    #onUpdate() : void {@PreUpdate}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class Passageiro <<entity>> {
+    -Long id {PK}
+    -LocalDateTime dataCriacao
+    -LocalDateTime dataAtualizacao
+    #onCreate() : void {@PrePersist}
+    #onUpdate() : void {@PreUpdate}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class Marinheiro <<entity>> {
+    -Long id {PK}
+    -String numeroDocumentoMarinha
+    -String tipoEmbarcacao
+    -String nomeEmbarcacao
+    -String numeroRegistroEmbarcacao
+    -Integer capacidadePassageiros
+    -StatusAprovacao statusAprovacao
+    -String observacoes
+    -LocalDateTime dataCriacao
+    -LocalDateTime dataAtualizacao
+    #onCreate() : void {@PrePersist}
+    #onUpdate() : void {@PreUpdate}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  enum StatusAprovacao {
+    PENDENTE
+    APROVADO
+    REJEITADO
+  }
+  
+  class Viagem <<entity>> {
+    -Long id {PK}
+    -String origem
+    -String destino
+    -String observacoes
+    -LocalDateTime dataHoraSolicitada
+    -LocalDateTime dataHoraAgendada
+    -LocalDateTime dataHoraIniciada
+    -LocalDateTime dataHoraConcluida
+    -StatusViagem status
+    -MetodoPagamento metodoPagamento
+    -Integer numeroPessoas
+    -BigDecimal valor
+    -BigDecimal valorPropostoPassageiro
+    -BigDecimal valorContraPropostaMarinheiro
+    -LocalDateTime dataCriacao
+    -LocalDateTime dataAtualizacao
+    #onCreate() : void {@PrePersist}
+    #onUpdate() : void {@PreUpdate}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  enum StatusViagem {
+    PENDENTE
+    AGUARDANDO_APROVACAO_PASSAGEIRO
+    ACEITA
+    EM_ANDAMENTO
+    CONCLUIDA
+    CANCELADA
+  }
+  
+  enum MetodoPagamento {
+    DINHEIRO
+    PIX
+  }
+  
+  class Avaliacao <<entity>> {
+    -Long id {PK}
+    -Integer nota
+    -String comentario
+    -LocalDateTime dataCriacao
+    #onCreate() : void {@PrePersist}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class ViagemRecusada <<entity>> {
+    -Long id {PK}
+    -LocalDateTime dataRecusa
+    #onCreate() : void {@PrePersist}
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  ' Relationships in entity package
+  Passageiro "1" --> "1" Usuario : @OneToOne\nusuario
+  Marinheiro "1" --> "1" Usuario : @OneToOne\nusuario
+  Viagem "0..*" --> "1" Passageiro : @ManyToOne\npassageiro
+  Viagem "0..*" --> "0..1" Marinheiro : @ManyToOne\nmarinheiro
+  Avaliacao "0..*" --> "1" Viagem : @ManyToOne\nviagem
+  Avaliacao "0..*" --> "1" Usuario : @ManyToOne\navaliador
+  Avaliacao "0..*" --> "1" Usuario : @ManyToOne\navaliado
+  ViagemRecusada "0..*" --> "1" Viagem : @ManyToOne\nviagem
+  ViagemRecusada "0..*" --> "1" Marinheiro : @ManyToOne\nmarinheiro
+  Marinheiro ..> StatusAprovacao : uses
+  Viagem ..> StatusViagem : uses
+  Viagem ..> MetodoPagamento : uses
+}
+
+' Package: dto
+package "com.nautigo.dto" {
+  class LoginRequest <<dto>> {
+    -String email
+    -String senha
+    .. Lombok: @Data ..
+  }
+  
+  class LoginResponse <<dto>> {
+    -String token
+    -UserResponse user
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class CadastroPassageiroRequest <<dto>> {
+    -String nome
+    -String email
+    -String telefone
+    -String senha
+    .. Lombok: @Data ..
+  }
+  
+  class CadastroMarinheiroRequest <<dto>> {
+    -String nome
+    -String email
+    -String telefone
+    -String senha
+    -String numeroDocumentoMarinha
+    -String tipoEmbarcacao
+    -String nomeEmbarcacao
+    -String numeroRegistroEmbarcacao
+    -Integer capacidadePassageiros
+    .. Lombok: @Data ..
+  }
+  
+  class SolicitarViagemRequest <<dto>> {
+    -String origem
+    -String destino
+    -String observacoes
+    -LocalDateTime dataHoraAgendada
+    -MetodoPagamento metodoPagamento
+    -Integer numeroPessoas
+    -BigDecimal valorPropostoPassageiro
+    .. Lombok: @Data ..
+  }
+  
+  class ViagemResponse <<dto>> {
+    -Long id
+    -Long passageiroId
+    -String passageiroNome
+    -Long marinheiroId
+    -String marinheiroNome
+    -String origem
+    -String destino
+    -String observacoes
+    -LocalDateTime dataHoraSolicitada
+    -LocalDateTime dataHoraAgendada
+    -LocalDateTime dataHoraIniciada
+    -LocalDateTime dataHoraConcluida
+    -StatusViagem status
+    -MetodoPagamento metodoPagamento
+    -Integer numeroPessoas
+    -String nomeBarco
+    -Double notaMediaMarinheiro
+    -Double notaMediaPassageiro
+    -BigDecimal valor
+    -BigDecimal valorPropostoPassageiro
+    -BigDecimal valorContraPropostaMarinheiro
+    -LocalDateTime dataCriacao
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class AvaliarViagemRequest <<dto>> {
+    -Integer nota
+    -String comentario
+    .. Lombok: @Data ..
+  }
+  
+  class AvaliacaoResponse <<dto>> {
+    -Long id
+    -Long viagemId
+    -String avaliadorNome
+    -String avaliadoNome
+    -Integer nota
+    -String comentario
+    -LocalDateTime dataCriacao
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class MarinheiroResponse <<dto>> {
+    -Long id
+    -Long usuarioId
+    -String nome
+    -String email
+    -String telefone
+    -String numeroDocumentoMarinha
+    -String tipoEmbarcacao
+    -String nomeEmbarcacao
+    -String numeroRegistroEmbarcacao
+    -Integer capacidadePassageiros
+    -String statusAprovacao
+    -String observacoes
+    -LocalDateTime dataCriacao
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class UserResponse <<dto>> {
+    -Long id
+    -String email
+    -String nome
+    -Boolean isAdmin
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  class PaginatedResponse <<dto>> {
+    -List<T> content
+    -int page
+    -int size
+    -long totalElements
+    -int totalPages
+    -boolean first
+    -boolean last
+    .. Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor ..
+  }
+  
+  SolicitarViagemRequest ..> MetodoPagamento : uses
+  ViagemResponse ..> StatusViagem : uses
+  ViagemResponse ..> MetodoPagamento : uses
+}
+
+' Package: repository
+package "com.nautigo.repository" {
+  interface UsuarioRepository <<repository>> {
+    +Optional<Usuario> findByEmail(String email)
+    +boolean existsByEmail(String email)
+  }
+  
+  interface PassageiroRepository <<repository>> {
+    +Optional<Passageiro> findByUsuario(Usuario usuario)
+    +boolean existsByUsuario(Usuario usuario)
+  }
+  
+  interface MarinheiroRepository <<repository>> {
+    +Optional<Marinheiro> findByUsuario(Usuario usuario)
+    +boolean existsByUsuario(Usuario usuario)
+    +List<Marinheiro> findByStatusAprovacao(StatusAprovacao status)
+  }
+  
+  interface ViagemRepository <<repository>> {
+    +List<Viagem> findByPassageiroOrderByDataCriacaoDesc(Passageiro passageiro)
+    +List<Viagem> findByMarinheiroOrderByDataCriacaoDesc(Marinheiro marinheiro)
+    +List<Viagem> findByStatusOrderByDataCriacaoDesc(StatusViagem status)
+    +List<Viagem> findByStatusAndMarinheiroIsNullOrderByDataCriacaoDesc(StatusViagem status)
+    +List<Viagem> findByStatusAndMarinheiroIsNullAndIdNotInOrderByDataCriacaoDesc(StatusViagem status, List<Long> ids)
+    +List<Viagem> findByPassageiroAndStatusInAndDataHoraAgendadaIsNull(Passageiro passageiro, List<StatusViagem> statuses)
+    +List<Viagem> findByPassageiroAndStatusNotOrderByDataCriacaoDesc(Passageiro passageiro, StatusViagem status)
+    +List<Viagem> findByMarinheiroAndStatusNotOrderByDataCriacaoDesc(Marinheiro marinheiro, StatusViagem status)
+    +Page<Viagem> findByPassageiroAndStatusNotOrderByDataCriacaoDesc(Passageiro passageiro, StatusViagem status, Pageable pageable)
+    +Page<Viagem> findByMarinheiroAndStatusNotOrderByDataCriacaoDesc(Marinheiro marinheiro, StatusViagem status, Pageable pageable)
+  }
+  
+  interface AvaliacaoRepository <<repository>> {
+    +List<Avaliacao> findByAvaliado(Usuario avaliado)
+    +Optional<Avaliacao> findByViagemAndAvaliador(Viagem viagem, Usuario avaliador)
+    +Double calcularMediaAvaliacoes(Usuario usuario)
+    +Long contarAvaliacoes(Usuario usuario)
+  }
+  
+  interface ViagemRecusadaRepository <<repository>> {
+    +List<Long> findViagemIdsByMarinheiroId(Long marinheiroId)
+    +boolean existsByViagem_IdAndMarinheiro_Id(Long viagemId, Long marinheiroId)
+  }
+  
+  UsuarioRepository ..|> JpaRepository : extends
+  PassageiroRepository ..|> JpaRepository : extends
+  MarinheiroRepository ..|> JpaRepository : extends
+  ViagemRepository ..|> JpaRepository : extends
+  AvaliacaoRepository ..|> JpaRepository : extends
+  ViagemRecusadaRepository ..|> JpaRepository : extends
+  
+  UsuarioRepository ..> Usuario : queries
+  PassageiroRepository ..> Passageiro : queries
+  PassageiroRepository ..> Usuario : queries
+  MarinheiroRepository ..> Marinheiro : queries
+  MarinheiroRepository ..> Usuario : queries
+  MarinheiroRepository ..> StatusAprovacao : queries
+  ViagemRepository ..> Viagem : queries
+  ViagemRepository ..> Passageiro : queries
+  ViagemRepository ..> Marinheiro : queries
+  ViagemRepository ..> StatusViagem : queries
+  AvaliacaoRepository ..> Avaliacao : queries
+  AvaliacaoRepository ..> Usuario : queries
+  AvaliacaoRepository ..> Viagem : queries
+  ViagemRecusadaRepository ..> ViagemRecusada : queries
+}
+
+' Package: service
+package "com.nautigo.service" {
+  class AuthService <<service>> {
+    -UsuarioRepository usuarioRepository
+    -PassageiroRepository passageiroRepository
+    -MarinheiroRepository marinheiroRepository
+    -PasswordEncoder passwordEncoder
+    -JwtUtil jwtUtil
+    +LoginResponse login(LoginRequest request)
+    +UserResponse cadastrarPassageiro(CadastroPassageiroRequest request) {@Transactional}
+    +UserResponse cadastrarMarinheiro(CadastroMarinheiroRequest request) {@Transactional}
+  }
+  
+  class MarinheiroService <<service>> {
+    -MarinheiroRepository marinheiroRepository
+    +List<MarinheiroResponse> listarPendentes()
+    +void aprovar(Long id) {@Transactional}
+    +void rejeitar(Long id, String motivo) {@Transactional}
+    +MarinheiroResponse buscarPorId(Long id)
+    -MarinheiroResponse toResponse(Marinheiro marinheiro)
+  }
+  
+  class ViagemService <<service>> {
+    -ViagemRepository viagemRepository
+    -PassageiroRepository passageiroRepository
+    -MarinheiroRepository marinheiroRepository
+    -UsuarioRepository usuarioRepository
+    -AvaliacaoRepository avaliacaoRepository
+    -ViagemRecusadaRepository viagemRecusadaRepository
+    +ViagemResponse solicitarViagem(Long passageiroId, SolicitarViagemRequest request) {@Transactional}
+    +List<ViagemResponse> listarViagensDoPassageiro(Long passageiroId)
+    +PaginatedResponse<ViagemResponse> listarViagensDoPassageiroPaginado(Long passageiroId, int page, int size)
+    +List<ViagemResponse> listarViagensDisponiveis(Long marinheiroId)
+    +List<ViagemResponse> listarViagensDoMarinheiro(Long marinheiroId)
+    +PaginatedResponse<ViagemResponse> listarViagensDoMarinheiroPaginado(Long marinheiroId, int page, int size)
+    +ViagemResponse aceitarViagem(Long viagemId, Long marinheiroId) {@Transactional}
+    +ViagemResponse recusarViagem(Long viagemId, Long marinheiroId) {@Transactional}
+    +ViagemResponse proporContraProposta(Long viagemId, Long marinheiroId, BigDecimal novoValor) {@Transactional}
+    +ViagemResponse responderContraProposta(Long viagemId, Long passageiroId, boolean aceitar) {@Transactional}
+    +ViagemResponse cancelarViagem(Long viagemId, Long usuarioId) {@Transactional}
+    +ViagemResponse iniciarViagem(Long viagemId, Long marinheiroId) {@Transactional}
+    +ViagemResponse concluirViagem(Long viagemId, Long marinheiroId) {@Transactional}
+    -ViagemResponse toResponse(Viagem viagem)
+  }
+  
+  class AvaliacaoService <<service>> {
+    -AvaliacaoRepository avaliacaoRepository
+    -ViagemRepository viagemRepository
+    -UsuarioRepository usuarioRepository
+    -PassageiroRepository passageiroRepository
+    -MarinheiroRepository marinheiroRepository
+    +AvaliacaoResponse avaliarViagem(Long viagemId, Long avaliadorId, AvaliarViagemRequest request) {@Transactional}
+    +Double obterNotaMedia(Long usuarioId)
+    +Long contarAvaliacoes(Long usuarioId)
+    +List<AvaliacaoResponse> listarAvaliacoesDoUsuario(Long usuarioId)
+    +boolean verificarSeJaAvaliou(Long viagemId, Long usuarioId)
+    -AvaliacaoResponse toResponse(Avaliacao avaliacao)
+  }
+  
+  AuthService ..> UsuarioRepository : uses
+  AuthService ..> PassageiroRepository : uses
+  AuthService ..> MarinheiroRepository : uses
+  AuthService ..> LoginRequest : uses
+  AuthService ..> LoginResponse : uses
+  AuthService ..> CadastroPassageiroRequest : uses
+  AuthService ..> CadastroMarinheiroRequest : uses
+  AuthService ..> UserResponse : uses
+  MarinheiroService ..> MarinheiroRepository : uses
+  MarinheiroService ..> MarinheiroResponse : uses
+  ViagemService ..> ViagemRepository : uses
+  ViagemService ..> PassageiroRepository : uses
+  ViagemService ..> MarinheiroRepository : uses
+  ViagemService ..> UsuarioRepository : uses
+  ViagemService ..> AvaliacaoRepository : uses
+  ViagemService ..> ViagemRecusadaRepository : uses
+  ViagemService ..> SolicitarViagemRequest : uses
+  ViagemService ..> ViagemResponse : uses
+  ViagemService ..> PaginatedResponse : uses
+  AvaliacaoService ..> AvaliacaoRepository : uses
+  AvaliacaoService ..> ViagemRepository : uses
+  AvaliacaoService ..> UsuarioRepository : uses
+  AvaliacaoService ..> PassageiroRepository : uses
+  AvaliacaoService ..> MarinheiroRepository : uses
+  AvaliacaoService ..> AvaliarViagemRequest : uses
+  AvaliacaoService ..> AvaliacaoResponse : uses
+}
+
+' Package: controller
+package "com.nautigo.controller" {
+  class AuthController <<controller>> {
+    -AuthService authService
+    +ResponseEntity<LoginResponse> login(LoginRequest request)
+    +ResponseEntity<?> cadastrarPassageiro(CadastroPassageiroRequest request)
+    +ResponseEntity<?> cadastrarMarinheiro(CadastroMarinheiroRequest request)
+  }
+  
+  class AdminController <<controller>> {
+    -MarinheiroService marinheiroService
+    +ResponseEntity<List<MarinheiroResponse>> listarPendentes()
+    +ResponseEntity<MarinheiroResponse> buscarMarinheiro(Long id)
+    +ResponseEntity<?> aprovar(Long id)
+    +ResponseEntity<?> rejeitar(Long id, Map<String, String> request)
+  }
+  
+  class PassageiroController <<controller>> {
+    -ViagemService viagemService
+    -PassageiroRepository passageiroRepository
+    -UsuarioRepository usuarioRepository
+    -JwtUtil jwtUtil
+    -Long getUserIdFromRequest(HttpServletRequest request)
+    +ResponseEntity<?> solicitarViagem(SolicitarViagemRequest request, HttpServletRequest httpRequest)
+    +ResponseEntity<?> listarMinhasViagens(int page, int size, HttpServletRequest request)
+    +ResponseEntity<?> cancelarViagem(Long id, HttpServletRequest request)
+    +ResponseEntity<?> responderContraProposta(Long id, Map<String, Boolean> body, HttpServletRequest request)
+  }
+  
+  class MarinheiroController <<controller>> {
+    -ViagemService viagemService
+    -MarinheiroRepository marinheiroRepository
+    -UsuarioRepository usuarioRepository
+    -JwtUtil jwtUtil
+    -Long getUserIdFromRequest(HttpServletRequest request)
+    +ResponseEntity<List<ViagemResponse>> listarViagensDisponiveis(HttpServletRequest request)
+    +ResponseEntity<?> listarMinhasViagens(int page, int size, HttpServletRequest request)
+    +ResponseEntity<?> aceitarViagem(Long id, HttpServletRequest request)
+    +ResponseEntity<?> proporContraProposta(Long id, Map<String, Object> body, HttpServletRequest request)
+    +ResponseEntity<?> recusarViagem(Long id, HttpServletRequest request)
+    +ResponseEntity<?> cancelarViagem(Long id, HttpServletRequest request)
+    +ResponseEntity<?> iniciarViagem(Long id, HttpServletRequest request)
+    +ResponseEntity<?> concluirViagem(Long id, HttpServletRequest request)
+  }
+  
+  class AvaliacaoController <<controller>> {
+    -AvaliacaoService avaliacaoService
+    -UsuarioRepository usuarioRepository
+    -JwtUtil jwtUtil
+    -Long getUserIdFromRequest(HttpServletRequest request)
+    +ResponseEntity<?> avaliarViagem(Long viagemId, AvaliarViagemRequest request, HttpServletRequest httpRequest)
+    +ResponseEntity<Map<String, Object>> obterNotaMedia(Long usuarioId)
+    +ResponseEntity<List<AvaliacaoResponse>> listarAvaliacoes(Long usuarioId)
+    +ResponseEntity<Map<String, Boolean>> verificarAvaliacao(Long viagemId, HttpServletRequest httpRequest)
+  }
+  
+  class UsuarioController <<controller>> {
+    -UsuarioRepository usuarioRepository
+    -PassageiroRepository passageiroRepository
+    -MarinheiroRepository marinheiroRepository
+    -JwtUtil jwtUtil
+    +ResponseEntity<?> obterTipoUsuario(HttpServletRequest request)
+  }
+  
+  AuthController ..> AuthService : uses
+  AdminController ..> MarinheiroService : uses
+  PassageiroController ..> ViagemService : uses
+  MarinheiroController ..> ViagemService : uses
+  AvaliacaoController ..> AvaliacaoService : uses
+}
+
+' Package: security
+package "com.nautigo.security" {
+  class JwtUtil <<component>> {
+    -String secret
+    -Long expiration
+    +String generateToken(String email, Long userId, Boolean isAdmin)
+    +String extractEmail(String token)
+    +Long extractUserId(String token)
+    +Boolean extractIsAdmin(String token)
+    +Date extractExpiration(String token)
+    +<T> T extractClaim(String token, Function<Claims, T> claimsResolver)
+    -Claims extractAllClaims(String token)
+    +Boolean isTokenExpired(String token)
+    +Boolean validateToken(String token, String email)
+  }
+  
+  class JwtAuthenticationFilter <<component>> {
+    -JwtUtil jwtUtil
+    +void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+  }
+  
+  JwtAuthenticationFilter ..> JwtUtil : uses
+}
+
+' Package: config
+package "com.nautigo.config" {
+  class SecurityConfig <<config>> {
+    -JwtAuthenticationFilter jwtAuthenticationFilter
+    +PasswordEncoder passwordEncoder()
+    +SecurityFilterChain securityFilterChain(HttpSecurity http)
+    +CorsConfigurationSource corsConfigurationSource()
+  }
+  
+  class DatabaseMigration <<config>> {
+    -JdbcTemplate jdbcTemplate
+    +void migrate() {@PostConstruct}
+  }
+  
+  class DataInitializer <<config>> {
+    -UsuarioRepository usuarioRepository
+    -PasswordEncoder passwordEncoder
+    +void run(String... args)
+  }
+  
+  SecurityConfig ..> JwtAuthenticationFilter : uses
+  DataInitializer ..> UsuarioRepository : uses
+}
+
+' External interfaces
+interface UserDetails {
+  +Collection<GrantedAuthority> getAuthorities()
+  +String getPassword()
+  +String getUsername()
+  +boolean isAccountNonExpired()
+  +boolean isAccountNonLocked()
+  +boolean isCredentialsNonExpired()
+  +boolean isEnabled()
+}
+
+interface JpaRepository<T, ID> {
+}
+
+' Realization relationships
+Usuario ..|> UserDetails : implements
+UsuarioRepository ..|> JpaRepository : extends
+PassageiroRepository ..|> JpaRepository : extends
+MarinheiroRepository ..|> JpaRepository : extends
+ViagemRepository ..|> JpaRepository : extends
+AvaliacaoRepository ..|> JpaRepository : extends
+ViagemRecusadaRepository ..|> JpaRepository : extends
+
+' Dependency relationships (DTOs used by controllers/services)
+AuthController ..> LoginRequest : uses
+AuthController ..> LoginResponse : uses
+AuthController ..> CadastroPassageiroRequest : uses
+AuthController ..> CadastroMarinheiroRequest : uses
+AuthController ..> UserResponse : uses
+AdminController ..> MarinheiroResponse : uses
+PassageiroController ..> SolicitarViagemRequest : uses
+PassageiroController ..> ViagemResponse : uses
+PassageiroController ..> PaginatedResponse : uses
+MarinheiroController ..> ViagemResponse : uses
+MarinheiroController ..> PaginatedResponse : uses
+AvaliacaoController ..> AvaliarViagemRequest : uses
+AvaliacaoController ..> AvaliacaoResponse : uses
+
+' Service dependencies on repositories
+AuthService ..> UsuarioRepository : uses
+AuthService ..> PassageiroRepository : uses
+AuthService ..> MarinheiroRepository : uses
+MarinheiroService ..> MarinheiroRepository : uses
+ViagemService ..> ViagemRepository : uses
+ViagemService ..> PassageiroRepository : uses
+ViagemService ..> MarinheiroRepository : uses
+ViagemService ..> UsuarioRepository : uses
+ViagemService ..> AvaliacaoRepository : uses
+ViagemService ..> ViagemRecusadaRepository : uses
+AvaliacaoService ..> AvaliacaoRepository : uses
+AvaliacaoService ..> ViagemRepository : uses
+AvaliacaoService ..> UsuarioRepository : uses
+AvaliacaoService ..> PassageiroRepository : uses
+AvaliacaoService ..> MarinheiroRepository : uses
+
+' Controller dependencies on services
+AuthController ..> AuthService : uses
+AdminController ..> MarinheiroService : uses
+PassageiroController ..> ViagemService : uses
+MarinheiroController ..> ViagemService : uses
+AvaliacaoController ..> AvaliacaoService : uses
+
+' Security dependencies
+AuthService ..> JwtUtil : uses
+PassageiroController ..> JwtUtil : uses
+MarinheiroController ..> JwtUtil : uses
+AvaliacaoController ..> JwtUtil : uses
+UsuarioController ..> JwtUtil : uses
+
+@enduml
+

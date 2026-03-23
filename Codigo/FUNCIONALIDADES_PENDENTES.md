@@ -10,15 +10,9 @@ Este documento lista as funcionalidades que ainda precisam ser desenvolvidas no 
 - [ ] **Validação de email** - Confirmação de email após cadastro
 - [ ] **Autenticação de dois fatores (2FA)** - Opcional para maior segurança
 
-### Importante
-- [ ] **Sessões ativas** - Listar e gerenciar dispositivos logados
-- [ ] **Logout de todos os dispositivos** - Opção de segurança
-- [ ] **Histórico de login** - Registrar tentativas de login e acessos
-
 ## 👤 Gerenciamento de Perfil
 
 ### Crítico
-- [ ] **Edição de perfil** - Permitir alterar nome, telefone, email
 - [ ] **Upload de foto de perfil** - Para passageiros e marinheiros
 - [ ] **Alteração de senha** - Quando logado
 
@@ -41,7 +35,6 @@ Este documento lista as funcionalidades que ainda precisam ser desenvolvidas no 
 - [ ] **Carteira digital** - Saldo na plataforma
 - [ ] **Solicitar reembolso** - Para viagens canceladas
 - [ ] **Dividir pagamento** - Quando há múltiplos passageiros
-- [ ] **Cupons e descontos** - Sistema de promoções
 
 ## 🗺️ Localização e Rastreamento
 

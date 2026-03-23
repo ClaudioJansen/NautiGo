@@ -1,0 +1,592 @@
+{
+  "metadata": {
+    "projectName": "NautiGo Backend",
+    "rootPackage": "com.nautigo",
+    "generatedAt": "2025-01-27T00:00:00Z"
+  },
+  "packages": {
+    "com.nautigo.entity": {
+      "classes": [
+        {
+          "type": "class",
+          "name": "Usuario",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=usuarios)", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, unique=true)"], "multiplicity": "1", "description": "Unique email"},
+            {"name": "senha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Encrypted password"},
+            {"name": "nome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "User name"},
+            {"name": "telefone", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Phone number"},
+            {"name": "isAdmin", "type": "java.lang.Boolean", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Admin flag"},
+            {"name": "ativo", "type": "java.lang.Boolean", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Active status"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Creation timestamp"},
+            {"name": "dataAtualizacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Update timestamp"}
+          ],
+          "methods": [
+            {"name": "getAuthorities", "visibility": "public", "isStatic": false, "returnType": "java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>", "parameters": [], "annotations": ["@Override"], "description": "Returns user authorities"},
+            {"name": "getPassword", "visibility": "public", "isStatic": false, "returnType": "java.lang.String", "parameters": [], "annotations": ["@Override"], "description": "Returns password"},
+            {"name": "getUsername", "visibility": "public", "isStatic": false, "returnType": "java.lang.String", "parameters": [], "annotations": ["@Override"], "description": "Returns email as username"},
+            {"name": "isAccountNonExpired", "visibility": "public", "isStatic": false, "returnType": "boolean", "parameters": [], "annotations": ["@Override"], "description": "Account expiration check"},
+            {"name": "isAccountNonLocked", "visibility": "public", "isStatic": false, "returnType": "boolean", "parameters": [], "annotations": ["@Override"], "description": "Account lock check"},
+            {"name": "isCredentialsNonExpired", "visibility": "public", "isStatic": false, "returnType": "boolean", "parameters": [], "annotations": ["@Override"], "description": "Credentials expiration check"},
+            {"name": "isEnabled", "visibility": "public", "isStatic": false, "returnType": "boolean", "parameters": [], "annotations": ["@Override"], "description": "Account enabled check"},
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"},
+            {"name": "onUpdate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PreUpdate"], "description": "Pre-update callback"}
+          ],
+          "notes": "Implements UserDetails for Spring Security. Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "Passageiro",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=passageiros)", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "usuario", "type": "com.nautigo.entity.Usuario", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@OneToOne", "@JoinColumn(name=usuario_id, nullable=false, unique=true)"], "multiplicity": "1", "description": "One-to-one relationship with Usuario"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Creation timestamp"},
+            {"name": "dataAtualizacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Update timestamp"}
+          ],
+          "methods": [
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"},
+            {"name": "onUpdate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PreUpdate"], "description": "Pre-update callback"}
+          ],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "Marinheiro",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=marinheiros)", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "usuario", "type": "com.nautigo.entity.Usuario", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@OneToOne", "@JoinColumn(name=usuario_id, nullable=false, unique=true)"], "multiplicity": "1", "description": "One-to-one relationship with Usuario"},
+            {"name": "numeroDocumentoMarinha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Navy document number"},
+            {"name": "tipoEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Vessel type"},
+            {"name": "nomeEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Vessel name"},
+            {"name": "numeroRegistroEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Vessel registration number"},
+            {"name": "capacidadePassageiros", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Passenger capacity"},
+            {"name": "statusAprovacao", "type": "com.nautigo.entity.Marinheiro.StatusAprovacao", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)", "@Enumerated(EnumType.STRING)"], "multiplicity": "1", "description": "Approval status enum"},
+            {"name": "observacoes", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(columnDefinition=TEXT)"], "multiplicity": "0..1", "description": "Observations"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Creation timestamp"},
+            {"name": "dataAtualizacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Update timestamp"}
+          ],
+          "methods": [
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"},
+            {"name": "onUpdate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PreUpdate"], "description": "Pre-update callback"}
+          ],
+          "notes": "Contains inner enum StatusAprovacao (PENDENTE, APROVADO, REJEITADO). Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "Viagem",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=viagens)", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "passageiro", "type": "com.nautigo.entity.Passageiro", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne", "@JoinColumn(name=passageiro_id, nullable=false)"], "multiplicity": "1", "description": "Many-to-one relationship with Passageiro"},
+            {"name": "marinheiro", "type": "com.nautigo.entity.Marinheiro", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne", "@JoinColumn(name=marinheiro_id)"], "multiplicity": "0..1", "description": "Many-to-one relationship with Marinheiro (nullable)"},
+            {"name": "origem", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Origin location"},
+            {"name": "destino", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Destination location"},
+            {"name": "observacoes", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(columnDefinition=TEXT)"], "multiplicity": "0..1", "description": "Observations"},
+            {"name": "dataHoraSolicitada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Request timestamp"},
+            {"name": "dataHoraAgendada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Scheduled datetime"},
+            {"name": "dataHoraIniciada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Start datetime"},
+            {"name": "dataHoraConcluida", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Completion datetime"},
+            {"name": "status", "type": "com.nautigo.entity.Viagem.StatusViagem", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)", "@Enumerated(EnumType.STRING)"], "multiplicity": "1", "description": "Trip status enum"},
+            {"name": "metodoPagamento", "type": "com.nautigo.entity.Viagem.MetodoPagamento", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)", "@Enumerated(EnumType.STRING)"], "multiplicity": "1", "description": "Payment method enum"},
+            {"name": "numeroPessoas", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Number of passengers"},
+            {"name": "valor", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(precision=10, scale=2)"], "multiplicity": "0..1", "description": "Final agreed value"},
+            {"name": "valorPropostoPassageiro", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(name=valor_proposto_passageiro, precision=10, scale=2)"], "multiplicity": "0..1", "description": "Value proposed by passenger"},
+            {"name": "valorContraPropostaMarinheiro", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(name=valor_contra_proposta_marinheiro, precision=10, scale=2)"], "multiplicity": "0..1", "description": "Counter-proposal value from sailor"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Creation timestamp"},
+            {"name": "dataAtualizacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Update timestamp"}
+          ],
+          "methods": [
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"},
+            {"name": "onUpdate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PreUpdate"], "description": "Pre-update callback"}
+          ],
+          "notes": "Contains inner enums StatusViagem (PENDENTE, AGUARDANDO_APROVACAO_PASSAGEIRO, ACEITA, EM_ANDAMENTO, CONCLUIDA, CANCELADA) and MetodoPagamento (DINHEIRO, PIX). Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "Avaliacao",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=avaliacoes)", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "viagem", "type": "com.nautigo.entity.Viagem", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne", "@JoinColumn(name=viagem_id, nullable=false)"], "multiplicity": "1", "description": "Many-to-one relationship with Viagem"},
+            {"name": "avaliador", "type": "com.nautigo.entity.Usuario", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne", "@JoinColumn(name=avaliador_id, nullable=false)"], "multiplicity": "1", "description": "User who is rating"},
+            {"name": "avaliado", "type": "com.nautigo.entity.Usuario", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne", "@JoinColumn(name=avaliado_id, nullable=false)"], "multiplicity": "1", "description": "User being rated"},
+            {"name": "nota", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false)"], "multiplicity": "1", "description": "Rating score (0-5)"},
+            {"name": "comentario", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(columnDefinition=TEXT)"], "multiplicity": "0..1", "description": "Rating comment"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Creation timestamp"}
+          ],
+          "methods": [
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"}
+          ],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "ViagemRecusada",
+          "stereotype": "entity",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Entity", "@Table(name=viagens_recusadas, uniqueConstraints=@UniqueConstraint(columnNames={viagem_id, marinheiro_id}))", "@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Id", "@GeneratedValue(strategy=IDENTITY)"], "multiplicity": "1", "description": "Primary key"},
+            {"name": "viagem", "type": "com.nautigo.entity.Viagem", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne(optional=false)", "@JoinColumn(name=viagem_id, nullable=false)"], "multiplicity": "1", "description": "Many-to-one relationship with Viagem"},
+            {"name": "marinheiro", "type": "com.nautigo.entity.Marinheiro", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@ManyToOne(optional=false)", "@JoinColumn(name=marinheiro_id, nullable=false)"], "multiplicity": "1", "description": "Many-to-one relationship with Marinheiro"},
+            {"name": "dataRecusa", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@Column(nullable=false, updatable=false)"], "multiplicity": "1", "description": "Refusal timestamp"}
+          ],
+          "methods": [
+            {"name": "onCreate", "visibility": "protected", "isStatic": false, "returnType": "void", "parameters": [], "annotations": ["@PrePersist"], "description": "Pre-persist callback"}
+          ],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        }
+      ]
+    },
+    "com.nautigo.dto": {
+      "classes": [
+        {
+          "type": "class",
+          "name": "LoginRequest",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data"],
+          "attributes": [
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank", "@Email"], "multiplicity": "1", "description": "User email"},
+            {"name": "senha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "User password"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString."
+        },
+        {
+          "type": "class",
+          "name": "LoginResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "token", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "JWT token"},
+            {"name": "user", "type": "com.nautigo.dto.UserResponse", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "User information"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "CadastroPassageiroRequest",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data"],
+          "attributes": [
+            {"name": "nome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "User name"},
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank", "@Email"], "multiplicity": "1", "description": "User email"},
+            {"name": "telefone", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Phone number"},
+            {"name": "senha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank", "@Size(min=6)"], "multiplicity": "1", "description": "Password (min 6 chars)"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString."
+        },
+        {
+          "type": "class",
+          "name": "CadastroMarinheiroRequest",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data"],
+          "attributes": [
+            {"name": "nome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "User name"},
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank", "@Email"], "multiplicity": "1", "description": "User email"},
+            {"name": "telefone", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Phone number"},
+            {"name": "senha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank", "@Size(min=6)"], "multiplicity": "1", "description": "Password (min 6 chars)"},
+            {"name": "numeroDocumentoMarinha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Navy document number"},
+            {"name": "tipoEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Vessel type"},
+            {"name": "nomeEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Vessel name"},
+            {"name": "numeroRegistroEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Vessel registration number"},
+            {"name": "capacidadePassageiros", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotNull", "@Positive"], "multiplicity": "1", "description": "Passenger capacity"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString."
+        },
+        {
+          "type": "class",
+          "name": "SolicitarViagemRequest",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data"],
+          "attributes": [
+            {"name": "origem", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Origin location"},
+            {"name": "destino", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotBlank"], "multiplicity": "1", "description": "Destination location"},
+            {"name": "observacoes", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Observations"},
+            {"name": "dataHoraAgendada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Scheduled datetime"},
+            {"name": "metodoPagamento", "type": "com.nautigo.entity.Viagem.MetodoPagamento", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotNull"], "multiplicity": "1", "description": "Payment method enum"},
+            {"name": "numeroPessoas", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotNull"], "multiplicity": "1", "description": "Number of passengers"},
+            {"name": "valorPropostoPassageiro", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotNull"], "multiplicity": "1", "description": "Proposed value by passenger"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString."
+        },
+        {
+          "type": "class",
+          "name": "ViagemResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Trip ID"},
+            {"name": "passageiroId", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Passenger ID"},
+            {"name": "passageiroNome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Passenger name"},
+            {"name": "marinheiroId", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Sailor ID"},
+            {"name": "marinheiroNome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Sailor name"},
+            {"name": "origem", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Origin location"},
+            {"name": "destino", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Destination location"},
+            {"name": "observacoes", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Observations"},
+            {"name": "dataHoraSolicitada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Request timestamp"},
+            {"name": "dataHoraAgendada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Scheduled datetime"},
+            {"name": "dataHoraIniciada", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Start datetime"},
+            {"name": "dataHoraConcluida", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Completion datetime"},
+            {"name": "status", "type": "com.nautigo.entity.Viagem.StatusViagem", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Trip status enum"},
+            {"name": "metodoPagamento", "type": "com.nautigo.entity.Viagem.MetodoPagamento", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Payment method enum"},
+            {"name": "numeroPessoas", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Number of passengers"},
+            {"name": "nomeBarco", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Vessel name"},
+            {"name": "notaMediaMarinheiro", "type": "java.lang.Double", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Sailor average rating"},
+            {"name": "notaMediaPassageiro", "type": "java.lang.Double", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Passenger average rating"},
+            {"name": "valor", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Final agreed value"},
+            {"name": "valorPropostoPassageiro", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Value proposed by passenger"},
+            {"name": "valorContraPropostaMarinheiro", "type": "java.math.BigDecimal", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Counter-proposal value from sailor"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Creation timestamp"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "AvaliarViagemRequest",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data"],
+          "attributes": [
+            {"name": "nota", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": ["@NotNull", "@Min(0)", "@Max(5)"], "multiplicity": "1", "description": "Rating score (0-5)"},
+            {"name": "comentario", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Rating comment"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString."
+        },
+        {
+          "type": "class",
+          "name": "AvaliacaoResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Rating ID"},
+            {"name": "viagemId", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Trip ID"},
+            {"name": "avaliadorNome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Rater name"},
+            {"name": "avaliadoNome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Rated user name"},
+            {"name": "nota", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Rating score"},
+            {"name": "comentario", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Rating comment"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Creation timestamp"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "MarinheiroResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Sailor ID"},
+            {"name": "usuarioId", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "User ID"},
+            {"name": "nome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Name"},
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Email"},
+            {"name": "telefone", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Phone"},
+            {"name": "numeroDocumentoMarinha", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Navy document"},
+            {"name": "tipoEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Vessel type"},
+            {"name": "nomeEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Vessel name"},
+            {"name": "numeroRegistroEmbarcacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Vessel registration"},
+            {"name": "capacidadePassageiros", "type": "java.lang.Integer", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Capacity"},
+            {"name": "statusAprovacao", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Approval status"},
+            {"name": "observacoes", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..1", "description": "Observations"},
+            {"name": "dataCriacao", "type": "java.time.LocalDateTime", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Creation timestamp"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "UserResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "id", "type": "java.lang.Long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "User ID"},
+            {"name": "email", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Email"},
+            {"name": "nome", "type": "java.lang.String", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Name"},
+            {"name": "isAdmin", "type": "java.lang.Boolean", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Admin flag"}
+          ],
+          "methods": [],
+          "notes": "Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        },
+        {
+          "type": "class",
+          "name": "PaginatedResponse",
+          "stereotype": "dto",
+          "visibility": "public",
+          "isAbstract": false,
+          "isFinal": false,
+          "annotations": ["@Data", "@NoArgsConstructor", "@AllArgsConstructor"],
+          "attributes": [
+            {"name": "content", "type": "java.util.List<T>", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "0..*", "description": "Page content"},
+            {"name": "page", "type": "int", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Current page number"},
+            {"name": "size", "type": "int", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Page size"},
+            {"name": "totalElements", "type": "long", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Total elements"},
+            {"name": "totalPages", "type": "int", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Total pages"},
+            {"name": "first", "type": "boolean", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Is first page"},
+            {"name": "last", "type": "boolean", "visibility": "private", "isStatic": false, "isFinal": false, "annotations": [], "multiplicity": "1", "description": "Is last page"}
+          ],
+          "methods": [],
+          "notes": "Generic DTO for paginated responses. Lombok generates getters, setters, equals, hashCode, toString, constructors."
+        }
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "from": "com.nautigo.entity.Passageiro",
+      "to": "com.nautigo.entity.Usuario",
+      "type": "association",
+      "stereotype": "@OneToOne",
+      "fromMultiplicity": "1",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "usuario",
+      "description": "One-to-one relationship: each Passageiro has one Usuario"
+    },
+    {
+      "from": "com.nautigo.entity.Marinheiro",
+      "to": "com.nautigo.entity.Usuario",
+      "type": "association",
+      "stereotype": "@OneToOne",
+      "fromMultiplicity": "1",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "usuario",
+      "description": "One-to-one relationship: each Marinheiro has one Usuario"
+    },
+    {
+      "from": "com.nautigo.entity.Viagem",
+      "to": "com.nautigo.entity.Passageiro",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "passageiro",
+      "description": "Many-to-one relationship: many Viagens belong to one Passageiro"
+    },
+    {
+      "from": "com.nautigo.entity.Viagem",
+      "to": "com.nautigo.entity.Marinheiro",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "0..1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "marinheiro",
+      "description": "Many-to-one relationship: many Viagens can belong to one Marinheiro (nullable)"
+    },
+    {
+      "from": "com.nautigo.entity.Avaliacao",
+      "to": "com.nautigo.entity.Viagem",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "viagem",
+      "description": "Many-to-one relationship: many Avaliacoes belong to one Viagem"
+    },
+    {
+      "from": "com.nautigo.entity.Avaliacao",
+      "to": "com.nautigo.entity.Usuario",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "avaliador",
+      "description": "Many-to-one relationship: many Avaliacoes have one avaliador Usuario"
+    },
+    {
+      "from": "com.nautigo.entity.Avaliacao",
+      "to": "com.nautigo.entity.Usuario",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "avaliado",
+      "description": "Many-to-one relationship: many Avaliacoes have one avaliado Usuario"
+    },
+    {
+      "from": "com.nautigo.entity.ViagemRecusada",
+      "to": "com.nautigo.entity.Viagem",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "viagem",
+      "description": "Many-to-one relationship: many ViagemRecusadas belong to one Viagem"
+    },
+    {
+      "from": "com.nautigo.entity.ViagemRecusada",
+      "to": "com.nautigo.entity.Marinheiro",
+      "type": "association",
+      "stereotype": "@ManyToOne",
+      "fromMultiplicity": "0..*",
+      "toMultiplicity": "1",
+      "owner": "from",
+      "mappedBy": null,
+      "fieldName": "marinheiro",
+      "description": "Many-to-one relationship: many ViagemRecusadas belong to one Marinheiro"
+    },
+    {
+      "from": "com.nautigo.entity.Usuario",
+      "to": "org.springframework.security.core.userdetails.UserDetails",
+      "type": "realization",
+      "stereotype": "none",
+      "fromMultiplicity": "1",
+      "toMultiplicity": "1",
+      "owner": "unspecified",
+      "mappedBy": null,
+      "fieldName": null,
+      "description": "Usuario implements UserDetails interface for Spring Security"
+    }
+  ],
+  "controllers": [
+    {
+      "class": "com.nautigo.controller.AuthController",
+      "basePath": "/api/auth",
+      "endpoints": [
+        {"httpMethod": "POST", "path": "/login", "methodName": "login", "request": "LoginRequest", "response": "LoginResponse", "auth": "none"},
+        {"httpMethod": "POST", "path": "/cadastro/passageiro", "methodName": "cadastrarPassageiro", "request": "CadastroPassageiroRequest", "response": "UserResponse", "auth": "none"},
+        {"httpMethod": "POST", "path": "/cadastro/marinheiro", "methodName": "cadastrarMarinheiro", "request": "CadastroMarinheiroRequest", "response": "UserResponse", "auth": "none"}
+      ]
+    },
+    {
+      "class": "com.nautigo.controller.AdminController",
+      "basePath": "/api/admin",
+      "endpoints": [
+        {"httpMethod": "GET", "path": "/marinheiros/pendentes", "methodName": "listarPendentes", "request": "null", "response": "List<MarinheiroResponse>", "auth": "required"},
+        {"httpMethod": "GET", "path": "/marinheiros/{id}", "methodName": "buscarMarinheiro", "request": "null", "response": "MarinheiroResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/marinheiros/{id}/aprovar", "methodName": "aprovar", "request": "null", "response": "Map<String, String>", "auth": "required"},
+        {"httpMethod": "POST", "path": "/marinheiros/{id}/rejeitar", "methodName": "rejeitar", "request": "Map<String, String>", "response": "Map<String, String>", "auth": "required"}
+      ]
+    },
+    {
+      "class": "com.nautigo.controller.PassageiroController",
+      "basePath": "/api/passageiro",
+      "endpoints": [
+        {"httpMethod": "POST", "path": "/viagens", "methodName": "solicitarViagem", "request": "SolicitarViagemRequest", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "GET", "path": "/viagens", "methodName": "listarMinhasViagens", "request": "null", "response": "PaginatedResponse<ViagemResponse>", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/cancelar", "methodName": "cancelarViagem", "request": "null", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/contra-proposta/responder", "methodName": "responderContraProposta", "request": "Map<String, Boolean>", "response": "ViagemResponse", "auth": "required"}
+      ]
+    },
+    {
+      "class": "com.nautigo.controller.MarinheiroController",
+      "basePath": "/api/marinheiro",
+      "endpoints": [
+        {"httpMethod": "GET", "path": "/viagens/disponiveis", "methodName": "listarViagensDisponiveis", "request": "null", "response": "List<ViagemResponse>", "auth": "required"},
+        {"httpMethod": "GET", "path": "/viagens", "methodName": "listarMinhasViagens", "request": "null", "response": "PaginatedResponse<ViagemResponse>", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/aceitar", "methodName": "aceitarViagem", "request": "null", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/contra-proposta", "methodName": "proporContraProposta", "request": "Map<String, Object>", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/recusar", "methodName": "recusarViagem", "request": "null", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/cancelar", "methodName": "cancelarViagem", "request": "null", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/iniciar", "methodName": "iniciarViagem", "request": "null", "response": "ViagemResponse", "auth": "required"},
+        {"httpMethod": "POST", "path": "/viagens/{id}/concluir", "methodName": "concluirViagem", "request": "null", "response": "ViagemResponse", "auth": "required"}
+      ]
+    },
+    {
+      "class": "com.nautigo.controller.AvaliacaoController",
+      "basePath": "/api/avaliacoes",
+      "endpoints": [
+        {"httpMethod": "POST", "path": "/viagens/{viagemId}", "methodName": "avaliarViagem", "request": "AvaliarViagemRequest", "response": "AvaliacaoResponse", "auth": "required"},
+        {"httpMethod": "GET", "path": "/usuario/{usuarioId}/media", "methodName": "obterNotaMedia", "request": "null", "response": "Map<String, Object>", "auth": "required"},
+        {"httpMethod": "GET", "path": "/usuario/{usuarioId}", "methodName": "listarAvaliacoes", "request": "null", "response": "List<AvaliacaoResponse>", "auth": "required"},
+        {"httpMethod": "GET", "path": "/viagens/{viagemId}/verificar", "methodName": "verificarAvaliacao", "request": "null", "response": "Map<String, Boolean>", "auth": "required"}
+      ]
+    },
+    {
+      "class": "com.nautigo.controller.UsuarioController",
+      "basePath": "/api/usuario",
+      "endpoints": [
+        {"httpMethod": "GET", "path": "/tipo", "methodName": "obterTipoUsuario", "request": "null", "response": "Map<String, String>", "auth": "required"}
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "Marinheiro.StatusAprovacao",
+      "values": ["PENDENTE", "APROVADO", "REJEITADO"]
+    },
+    {
+      "name": "Viagem.StatusViagem",
+      "values": ["PENDENTE", "AGUARDANDO_APROVACAO_PASSAGEIRO", "ACEITA", "EM_ANDAMENTO", "CONCLUIDA", "CANCELADA"]
+    },
+    {
+      "name": "Viagem.MetodoPagamento",
+      "values": ["DINHEIRO", "PIX"]
+    }
+  ]
+}
+
