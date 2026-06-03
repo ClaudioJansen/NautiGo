@@ -1,13 +1,15 @@
-﻿﻿-----
-**Cláudio Manoel Jansen de Oliveira**
+﻿﻿**Cláudio Manoel Jansen de Oliveira**
 
-caujansen@gmail.com
+**Luiz Victor Aldenucci**
+
+caujansen@gmail.com  
+luizvictoraldenucci@gmail.com
 
 # **Documento de Visão para o Sistema NautiGo**
 
-**16 de março de 2025**
+**03 de junho de 2026**
 
-*Proposta do aluno Cláudio Manoel Jansen de Oliveira ao curso de Engenharia de Software como projeto de Trabalho de Conclusão de Curso (TCC) sob orientação de conteúdo e orientação acadêmica dos professores Cleiton Silva Tavares, Danilo Boechat Seufitelli, Raphael Ramos Dias Costa Raphael Ramos Dias Costa e Leonardo Vilela Cardoso.*
+*Proposta dos alunos Cláudio Manoel Jansen de Oliveira e Luiz Victor Aldenucci ao curso de Engenharia de Software como projeto de Trabalho de Conclusão de Curso (TCC) sob orientação de conteúdo e orientação acadêmica dos professores Cleiton Silva Tavares, Danilo de Quadros Maia Filho, João Pedro Oliveira Batisteli e Leonardo Vilela Cardoso.*
 
 -----
 ## **OBJETIVOS**
